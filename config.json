@@ -1,0 +1,33 @@
+{
+    "name": "Unanswered",
+    "namespace": "DE\\RUB\\UnansweredExternalModule",
+    "description": "REDCap external module that counts the unanswered fields on a data entry or survey page.",
+    "documentation": "README.md",
+    "authors": [
+        {
+            "name": "Günther Rezniczek",
+            "email": "guenther.rezniczek@rub.de",
+            "institution": "Marien Hospital Herne, Klinikum der Ruhr-Universität Bochum"
+        }
+    ],
+    "framework-version": 16,
+    "action-tags": [
+        {
+            "tag": "@N-UNANSWERED",
+            "description": "Counts the unanswered fields on a data entry or survey page. This action tag must be attached to a field of type 'Text Box' with validation set to 'Integer' only."
+        },
+        {
+            "tag": "@N-UNANSWERED-EXCLUDED",
+            "description": "Attach this action to any field you do not want to be counted by the <code>@N-UNANSWERED</code> action tag."
+        }
+    ],
+    "system-settings": [
+    ],
+    "project-settings": [
+        {
+            "key": "javascript-debug",
+            "name": "Output debug information to the browser console",
+            "type": "checkbox"
+        }
+    ]
+}
