@@ -21,7 +21,7 @@ let config = {};
 let orig_setDataEntryFormValuesChanged = null;
 let orig_doBranching = null;
 
-let inserting = false;
+let counting = false;
 
 //#endregion
 
@@ -43,36 +43,41 @@ function initialize(config_data, jsmo = null) {
 }
 
 function count() {
-    if (inserting) return;
+    if (counting) return;
+    counting = true;
     let count = 0;
     for (const field of config.fields) {
         if (config.excluded.includes(field)) continue;
         const $tr = $('tr[sq_id="' + field + '"]');
         // Skip some fields based on TR state
-        if ($tr.hasClass('\@CALCTEXT') || $tr.hasClass('\@CALCDATE') || $tr.hasClass('\@HIDDEN') || $tr.css('display') == 'none') continue;
+        if ($tr.hasClass('\@CALCTEXT') || 
+            $tr.hasClass('\@CALCDATE') || 
+            $tr.hasClass('\@HIDDEN') || 
+            ($tr.css('display') == 'none' && !$tr.hasClass('row-field-embedded'))) {
+                continue;
+        }
         if (config.isSurvey && $tr.hasClass('\@HIDDEN-SURVEY')) continue;
         if (!config.isSurvey && $tr.hasClass('\@HIDDEN-FORM')) continue;
         // Check value
-        log('Checking field:', field);
-        if (typeof document['form'][field] != 'undefined' && document['form'][field].value == '') {
-            count++;
+        if (typeof document['form'][field] != 'undefined') {
+            log('Checking field:', field);
+            count += (document['form'][field].value == '') ? 1 : 0;
         }
         else {
             // Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
+            log('Checking checkbox field:', field);
+            
 
         }
         // Insert count
-        inserting = true;
         for (const field of config.counters) {
             const val = '' + count;
             document['form'][field].value = val;
             $('input[name="' + field + '"]').val(val).trigger('blur');
             window['updatePipeReceivers'](field, window['event_id'], val);
         }
-        inserting = false;
     }
-
-
+    counting = false;
     log('Unanswered count:', count);
 }
 
@@ -80,11 +85,17 @@ function count() {
 
 function hooked_setDataEntryFormValuesChanged(field) {
     orig_setDataEntryFormValuesChanged(field);
-    count();
+    if (!counting) {
+        log('Counting after setDataEntryFormValuesChanged for field:', field);
+        count();
+    }
 }
 function hooked_doBranching(field) {
     orig_doBranching(field);
-    count();
+    if (!counting) {
+        log('Counting after doBranching for field:', field);
+        count();
+    }
 }
 
 //#endregion
