@@ -66,7 +66,17 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             "version" => $this->VERSION,
             "debug" => $this->js_debug,
             "counters" => $valid_tagged_fields,
-            "excluded" => array_keys($tagged)
+            "excluded" => array_keys($tagged),
+            "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($valid_tagged_fields, $page_fields, $instrument) { 
+                // Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
+                // CALCTEXT and CALCDATE will be filtered out later (JavaScript)
+                return !in_array($field_name, $valid_tagged_fields) &&
+                    $page_fields[$field_name]["element_type"] != "descriptive" && 
+                    $page_fields[$field_name]["element_type"] != "calc" && 
+                    $field_name != $this->proj->table_pk && 
+                    $field_name != "{$instrument}_complete"; 
+            })),
+            "isSurvey" => $is_survey,
         );
         // Output JS and init code
         require_once "classes/InjectionHelper.php";
