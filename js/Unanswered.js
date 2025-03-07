@@ -18,6 +18,11 @@ window[NS_PREFIX + EM_NAME] = EM;
 /** Configuration data supplied from the server */
 let config = {};
 
+let orig_setDataEntryFormValuesChanged = null;
+let orig_doBranching = null;
+
+let inserting = false;
+
 //#endregion
 
 /**
@@ -30,8 +35,59 @@ function initialize(config_data, jsmo = null) {
     config.JSMO = jsmo;
     log('Initialzing ...', config);
     
+    orig_setDataEntryFormValuesChanged = window['setDataEntryFormValuesChanged'];
+    window['setDataEntryFormValuesChanged'] = hooked_setDataEntryFormValuesChanged;
+    orig_doBranching = window['doBranching'];
+    window['doBranching'] = hooked_doBranching;
+    count();
 }
 
+function count() {
+    if (inserting) return;
+    let count = 0;
+    for (const field of config.fields) {
+        if (config.excluded.includes(field)) continue;
+        const $tr = $('tr[sq_id="' + field + '"]');
+        // Skip some fields based on TR state
+        if ($tr.hasClass('\@CALCTEXT') || $tr.hasClass('\@CALCDATE') || $tr.hasClass('\@HIDDEN') || $tr.css('display') == 'none') continue;
+        if (config.isSurvey && $tr.hasClass('\@HIDDEN-SURVEY')) continue;
+        if (!config.isSurvey && $tr.hasClass('\@HIDDEN-FORM')) continue;
+        // Check value
+        log('Checking field:', field);
+        if (typeof document['form'][field] != 'undefined' && document['form'][field].value == '') {
+            count++;
+        }
+        else {
+            // Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
+
+        }
+        // Insert count
+        inserting = true;
+        for (const field of config.counters) {
+            const val = '' + count;
+            document['form'][field].value = val;
+            $('input[name="' + field + '"]').val(val).trigger('blur');
+            window['updatePipeReceivers'](field, window['event_id'], val);
+        }
+        inserting = false;
+    }
+
+
+    log('Unanswered count:', count);
+}
+
+//#region Hijack Hooks
+
+function hooked_setDataEntryFormValuesChanged(field) {
+    orig_setDataEntryFormValuesChanged(field);
+    count();
+}
+function hooked_doBranching(field) {
+    orig_doBranching(field);
+    count();
+}
+
+//#endregion
 
 //#region Debug Logging
 
