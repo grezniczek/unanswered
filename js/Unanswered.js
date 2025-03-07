@@ -66,16 +66,24 @@ function count() {
         else {
             // Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
             log('Checking checkbox field:', field);
-            
-
+            const isRequired = $tr.attr('req') == '1';
+            // Check if it is embedded and potentiall hidden, in which case we skip it
+            const isHidden = $('.rc-field-embed[var="' + field + '"]').css('display') == 'none';
+            if (isRequired && !isHidden) {
+                let oneChecked = false;
+                $('input[name="__chkn__' + field + '"]').each(function() {
+                    if ($(this).is(':checked')) oneChecked = true;
+                });
+                count += (oneChecked) ? 0 : 1;
+            }
         }
-        // Insert count
-        for (const field of config.counters) {
-            const val = '' + count;
-            document['form'][field].value = val;
-            $('input[name="' + field + '"]').val(val).trigger('blur');
-            window['updatePipeReceivers'](field, window['event_id'], val);
-        }
+    }
+    // Insert count
+    for (const field of config.counters) {
+        const val = '' + count;
+        document['form'][field].value = val;
+        $('input[name="' + field + '"]').val(val).trigger('blur');
+        window['updatePipeReceivers'](field, window['event_id'], val);
     }
     counting = false;
     log('Unanswered count:', count);
