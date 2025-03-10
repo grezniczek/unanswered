@@ -39,6 +39,10 @@ function initialize(config_data, jsmo = null) {
     window['setDataEntryFormValuesChanged'] = hooked_setDataEntryFormValuesChanged;
     orig_doBranching = window['doBranching'];
     window['doBranching'] = hooked_doBranching;
+    if (config.isSurvey) {
+        // Need to hook into regular inputs to get informed
+        $('[data-kind="field-value"] input').on('change', count);
+    }
     count();
 }
 
