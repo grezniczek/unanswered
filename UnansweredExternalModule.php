@@ -55,6 +55,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
                 if (isset($params["params"])) {
                     $list = trim($params["params"], "'\"");
                     $list = array_filter(array_unique(array_map("trim", explode(",", $list))), "strlen");
+                    $list = $this->add_section_fields($list, $page_fields);
                     $list = array_intersect($list, array_keys($page_fields));
                 }
                 $valid_tagged_fields[$field_name] = $list;
@@ -96,6 +97,45 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
     #endregion
 
     #region Private Helpers
+
+    private function add_section_fields($orig_fields, $page_fields)
+    {
+        $fields = [];
+        $ordered_page_fields = [];
+        $min = PHP_INT_MAX;
+        $max = 1;
+        foreach ($page_fields as $field_name => $field) {
+            $pos = $field["field_order"];
+            $min = min($min, $pos);
+            $max = max($max, $pos);
+            $ordered_page_fields[$pos] = $field_name;
+        }
+        ksort($ordered_page_fields);
+        foreach ($orig_fields as $field_name) {
+            if (strpos($field_name, "__") === 0) {
+                $field = substr($field_name, 2);
+                $field_idx = array_search($field, $ordered_page_fields);
+                if ($field_idx === false) continue;
+                // Add all fields before the field, until a field with a section header is reached
+                for ($i = $field_idx; $i >= $min; $i--) {
+                    $this_field = $ordered_page_fields[$i];
+                    $fields[] = $this_field;
+                    if ($page_fields[$this_field]["element_preceding_header"] !== null) break;
+                }
+                $fields = array_reverse($fields);
+                // Add all fields after the field, until a field with a section header is reached
+                for ($i = $field_idx + 1; $i <= $max; $i++) {
+                    $this_field = $ordered_page_fields[$i];
+                    if ($page_fields[$this_field]["element_preceding_header"] !== null) break;
+                    $fields[] = $this_field;
+                }
+            }
+            else {
+                $fields[] = $field_name;
+            }
+        }
+        return $fields;
+    }
 
     /**
      * Gets a list of field on the page
