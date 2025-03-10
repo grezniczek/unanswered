@@ -14,11 +14,15 @@
     "action-tags": [
         {
             "tag": "@N-UNANSWERED",
-            "description": "Counts the unanswered fields on a data entry or survey page. This action tag must be attached to a field of type 'Text Box' with validation set to 'Integer' only."
+            "description": "Counts the unanswered fields on a data entry or survey page. This action tag must be attached to a field of type 'Text Box' with validation set to 'Integer' only. The behavior of fields with regard to this action tag can be modified with the <code>@N-UNANSWERED-EXCLUDED</code> and <code>@N-UNANSWERED-ALWAYS-INCLUDED</code> action tags. Optionally, a set of fields (separated by a comma) can be specified as a parameter to limit the count to this set. For example, <code>@N-UNANSWERED='field1,field2,field3'</code> will only consider the fields <code>field1</code>, <code>field2</code>, and <code>field3</code>. Additionally, when a field in the parameter list is prepended with <code>__</code> (double underscore), all fields of the section this field is in will be added. This is useful to create a counting behavior that is the same for an instrument both, in data entry mode as well as in survey mode when showing one page per section."
         },
         {
             "tag": "@N-UNANSWERED-EXCLUDED",
             "description": "Attach this action to any field you do not want to be counted by the <code>@N-UNANSWERED</code> action tag."
+        },
+        {
+            "tag": "@N-UNANSWERED-ALWAYS-INCLUDED",
+            "description": "Attach this action to any field that is embedded in the label of a radio or checkbox field to included in the count even when the radio or checkbox it is embedded in is not selected/checked. Such fields are otherwise only counted by the <code>@N-UNANSWERED</code> action tag when the embedding radio/checkbox is selected/checked."
         }
     ],
     "system-settings": [

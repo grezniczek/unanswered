@@ -15,6 +15,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 
     const AT_N_UNANSWERED = "@N-UNANSWERED";
     const AT_N_UNANSWERED_EXCLUDED = "@N-UNANSWERED-EXCLUDED";
+    const AT_N_UNANSWERED_ALWAYS_INCLUDED = "@N-UNANSWERED-ALWAYS-INCLUDED";
 
     #region Hooks
 
@@ -65,14 +66,17 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             return; // No valid fields - we are done
         }
         // Check for N-UNANSWERED-EXCLUDED action tag
-        $tagged = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_EXCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_EXCLUDED] ?? [];
+        $excluded = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_EXCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_EXCLUDED] ?? [];
+        // Check for N-UNANSWERED-EMBEDDED-INCLUDED action tag
+        $always_included = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_ALWAYS_INCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_ALWAYS_INCLUDED] ?? [];
         // Prepare config
         $this->init_config();
         $config = array(
             "version" => $this->VERSION,
             "debug" => $this->js_debug,
             "counters" => $valid_tagged_fields,
-            "excluded" => array_keys($tagged),
+            "excluded" => array_keys($excluded),
+            "alwaysIncluded" => array_keys($always_included),
             "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($valid_tagged_fields, $page_fields, $instrument) { 
                 // Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
                 // CALCTEXT and CALCDATE will be filtered out later (JavaScript)

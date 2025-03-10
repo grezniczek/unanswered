@@ -63,6 +63,18 @@ function count() {
         }
         if (config.isSurvey && $tr.hasClass('\@HIDDEN-SURVEY')) continue;
         if (!config.isSurvey && $tr.hasClass('\@HIDDEN-FORM')) continue;
+        // Skip any embedded fields that are embedded within a radio or checkbox choice, unless they are marked with @N-UNANSWERED-ALWAYS-INCLUDED
+        if (!config.alwaysIncluded.includes(field) && $tr.hasClass('row-field-embedded')) {
+            const $container = $('.rc-field-embed[var="' + field + '"]').parents('[data-mlm-type="enum"]').first();
+            if ($container.length > 0) {
+                const id = $container.is('.ec') ? ($container.parent().attr('for') ?? '') : ($container.attr('for') ?? '');
+                const checked = $('input#' + id).prop('checked');
+                if (!checked) {
+                    log('Skipping radio/checkbox-embedded field:', field, id);
+                    continue;
+                }
+            }
+        }
         // Check value
         if (typeof document['form'][field] != 'undefined') {
             log('Checking field:', field);
