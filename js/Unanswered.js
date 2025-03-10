@@ -45,7 +45,8 @@ function initialize(config_data, jsmo = null) {
 function count() {
     if (counting) return;
     counting = true;
-    let count = 0;
+    const counts = {};
+    Object.keys(config.counters).forEach(key => counts[key] = 0);
     for (const field of config.fields) {
         if (config.excluded.includes(field)) continue;
         const $tr = $('tr[sq_id="' + field + '"]');
@@ -61,7 +62,12 @@ function count() {
         // Check value
         if (typeof document['form'][field] != 'undefined') {
             log('Checking field:', field);
-            count += (document['form'][field].value == '') ? 1 : 0;
+            const val = (document['form'][field].value == '') ? 1 : 0;
+            Object.keys(counts).forEach(key => {
+                if (config.counters[key].length == 0 || config.counters[key].includes(field)) {
+                    counts[key] += val;
+                }
+            });
         }
         else {
             // Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
@@ -74,19 +80,24 @@ function count() {
                 $('input[name="__chkn__' + field + '"]').each(function() {
                     if ($(this).is(':checked')) oneChecked = true;
                 });
-                count += (oneChecked) ? 0 : 1;
+                const val = (oneChecked) ? 0 : 1;
+                Object.keys(counts).forEach(key => {
+                    if (config.counters[key].length == 0 || config.counters[key].includes(field)) {
+                        counts[key] += val;
+                    }
+                });
             }
         }
     }
     // Insert count
-    for (const field of config.counters) {
-        const val = '' + count;
+    for (const field in counts) {
+        const val = '' + counts[field];
         document['form'][field].value = val;
         $('input[name="' + field + '"]').val(val).trigger('blur');
         window['updatePipeReceivers'](field, window['event_id'], val);
     }
     counting = false;
-    log('Unanswered count:', count);
+    log('Unanswered count:', counts);
 }
 
 //#region Hijack Hooks

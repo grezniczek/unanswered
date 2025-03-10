@@ -49,10 +49,15 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
         }
         // Validate action tag use (must be on a field of type 'Text Box' with validation set to 'Integer')
         $valid_tagged_fields = [];
-        foreach ($tagged as $field_name => $_) {
+        foreach ($tagged as $field_name => $params) {
             $field = $page_fields[$field_name];
             if ($field["element_type"] == "text" && $field["element_validation_type"] == "int") {
-                $valid_tagged_fields[] = $field_name;
+                if (isset($params["params"])) {
+                    $list = trim($params["params"], "'\"");
+                    $list = array_filter(array_unique(array_map("trim", explode(",", $list))), "strlen");
+                    $list = array_intersect($list, array_keys($page_fields));
+                }
+                $valid_tagged_fields[$field_name] = $list;
             }
         }
         if (!count($valid_tagged_fields)) {
@@ -70,7 +75,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($valid_tagged_fields, $page_fields, $instrument) { 
                 // Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
                 // CALCTEXT and CALCDATE will be filtered out later (JavaScript)
-                return !in_array($field_name, $valid_tagged_fields) &&
+                return !array_key_exists($field_name, $valid_tagged_fields) &&
                     $page_fields[$field_name]["element_type"] != "descriptive" && 
                     $page_fields[$field_name]["element_type"] != "calc" && 
                     $field_name != $this->proj->table_pk && 
