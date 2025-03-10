@@ -40,17 +40,23 @@ function initialize(config_data, jsmo = null) {
     orig_doBranching = window['doBranching'];
     window['doBranching'] = hooked_doBranching;
     if (config.isSurvey) {
-        // Need to hook into regular inputs to get informed
-        $('[data-kind="field-value"] input').on('change', count);
+        // On surveys, we need to hook into some elements to get informed
+        $('[data-kind="field-value"] input').on('change', (e) => count($(e.target).attr('name')));
+        $('[data-kind="field-value"] textarea').on('change', (e) => count($(e.target).attr('name')));
+        $('[data-kind="field-value"] select').on('change', (e) => count($(e.target).attr('name')));
     }
+    // Initial count
     count();
 }
 
-function count() {
+function count(initiator = '') {
     if (counting) return;
+    log('Counting (initiator: ' + initiator + ') ...');
     counting = true;
     const counts = {};
     Object.keys(config.counters).forEach(key => counts[key] = 0);
+    const missing = {};
+    Object.keys(config.highlight).forEach(key => missing[key] = []);
     for (const field of config.fields) {
         if (config.excluded.includes(field)) continue;
         const $tr = $('tr[sq_id="' + field + '"]');
@@ -77,17 +83,17 @@ function count() {
         }
         // Check value
         if (typeof document['form'][field] != 'undefined') {
-            log('Checking field:', field);
             const val = (document['form'][field].value == '') ? 1 : 0;
             Object.keys(counts).forEach(key => {
                 if (config.counters[key].length == 0 || config.counters[key].includes(field)) {
                     counts[key] += val;
+                    if (missing.hasOwnProperty(key) && val == 1) missing[key].push(field);
                 }
             });
+            log('Checking field "' + field + '":', val == 0 ? 'Answered' : 'Unanswered');
         }
         else {
             // Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
-            log('Checking checkbox field:', field);
             const isRequired = $tr.attr('req') == '1';
             // Check if it is embedded and potentiall hidden, in which case we skip it
             const isHidden = $('.rc-field-embed[var="' + field + '"]').css('display') == 'none';
@@ -100,8 +106,10 @@ function count() {
                 Object.keys(counts).forEach(key => {
                     if (config.counters[key].length == 0 || config.counters[key].includes(field)) {
                         counts[key] += val;
+                        if (missing.hasOwnProperty(key) && val == 1) missing[key].push(field);
                     }
                 });
+                log('Checking checkbox field "' + field + '":', val == 0 ? 'Answered' : 'Unanswered');
             }
         }
     }
@@ -114,7 +122,42 @@ function count() {
     }
     counting = false;
     log('Unanswered count:', counts);
+    toggleHighlight(initiator, missing);
 }
+
+//#region Highlighting
+
+function toggleHighlight(initiator, missing) {
+    if (initiator == '') return;
+    initiator = initiator.replace('___radio', '').replace('__chkn__', '');
+    log('Highlighting missing fields after change to "' + initiator + '":', missing);
+    // Get y-coordinate of initiator field
+    const $tr = $('tr[sq_id="' + initiator + '"]');
+    const $container = $tr.hasClass('row-field-embedded') ? $('.rc-field-embed[var="' + initiator + '"]').parents('tr[sq_id]') : $tr;
+    if ($container.length == 0) return;
+    $container.removeClass('n-unanswered-highlight').find('.n-unanswered-highlight').removeClass('n-unanswered-highlight');
+    const bottom = ($container?.offset()?.top ?? 0) + ($container.find('td.data').height() ?? 0);
+    // Loop through missing fields
+    Object.keys(missing).forEach(counter => {
+        const fields = missing[counter];
+        if (fields.length == 0) return;
+        for (const field of fields) {
+            const $tr = $('tr[sq_id="' + field + '"]');
+            const $container = $tr.hasClass('row-field-embedded') ? $('.rc-field-embed[var="' + field + '"]') : $tr;
+            if ($container.length == 0) continue;
+            // Should we highlight?
+            const top = $container?.offset()?.top ?? 0;
+            log('Checking to highlight field "' + field + '":', bottom, '>', top, $container);
+            if (bottom > top || initiator == field) {
+                $container.addClass('n-unanswered-highlight');
+                log('Highlighting field "' + field + '"');
+            }
+            $container.css('--n-unanswered-highlight-color', config.highlight[counter]);
+        }
+    });
+}
+
+//#endregion
 
 //#region Hijack Hooks
 
@@ -122,14 +165,14 @@ function hooked_setDataEntryFormValuesChanged(field) {
     orig_setDataEntryFormValuesChanged(field);
     log('Counting after setDataEntryFormValuesChanged for field:', field, counting);
     if (!counting) {
-        count();
+        count(field);
     }
 }
 function hooked_doBranching(field) {
     orig_doBranching(field);
     log('Counting after doBranching for field:', field, counting);
     if (!counting) {
-        count();
+        count(field);
     }
 }
 

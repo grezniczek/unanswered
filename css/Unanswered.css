@@ -2,3 +2,26 @@
  * Unanswered EM 
  * Dr. Günther Rezniczek, Marien Hospital Herne, Klinikum der Ruhr-Universität Bochum
  */
+#form { --n-unanswered-highlight-color: red; }
+.n-unanswered-highlight [data-kind="field-value"] input,
+.n-unanswered-highlight [data-kind="field-value"] textarea,
+.n-unanswered-highlight [data-kind="field-value"] .sldrtd,
+.n-unanswered-highlight a.fileuploadlink,
+.n-unanswered-highlight [data-kind="field-value"] select {
+    outline: 2px solid var(--n-unanswered-highlight-color);
+}
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed input,
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed textarea,
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed .sldrtd,
+tr.n-unanswered-highlight .rc-field-embed a.fileuploadlink,
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed select {
+    outline: none;
+}
+
+.n-unanswered-highlight .enhancedchoice .ec {
+    border: 2px solid var(--n-unanswered-highlight-color);
+    border-radius: 10px;
+}
+.n-unanswered-highlight div.enhancedchoice label {
+    border: none;
+}

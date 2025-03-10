@@ -23,6 +23,10 @@
         {
             "tag": "@N-UNANSWERED-ALWAYS-INCLUDED",
             "description": "Attach this action to any field that is embedded in the label of a radio or checkbox field to included in the count even when the radio or checkbox it is embedded in is not selected/checked. Such fields are otherwise only counted by the <code>@N-UNANSWERED</code> action tag when the embedding radio/checkbox is selected/checked."
+        },
+        {
+            "tag": "@N-UNANSWERED-HIGHLIGHT",
+            "description": "Attach this action together with the <code>@N-UNANSWERED</code> action tag only, i.e., to the same field. When set, unanswered fields will be highlighted in red or the color specified as an optional parameter to this actiontag (e.g., <code>@N-UNANSWERED-HIGHLIGHT='green'</code>). The color value can be any valid CSS color value, e.g., <code>red</code>, <code>#ff0000</code>, or <code>rgb(255, 0, 0)</code>."
         }
     ],
     "system-settings": [

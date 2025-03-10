@@ -16,6 +16,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
     const AT_N_UNANSWERED = "@N-UNANSWERED";
     const AT_N_UNANSWERED_EXCLUDED = "@N-UNANSWERED-EXCLUDED";
     const AT_N_UNANSWERED_ALWAYS_INCLUDED = "@N-UNANSWERED-ALWAYS-INCLUDED";
+    const AT_N_UNANSWERED_HIGHLIGHT = "@N-UNANSWERED-HIGHLIGHT";
 
     #region Hooks
 
@@ -69,6 +70,13 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
         $excluded = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_EXCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_EXCLUDED] ?? [];
         // Check for N-UNANSWERED-EMBEDDED-INCLUDED action tag
         $always_included = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_ALWAYS_INCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_ALWAYS_INCLUDED] ?? [];
+        // Check for N-UNANSWERED-HIGHLIGHT action tag (must be applied with the N-UNANSWERED action tag)
+        $highlight = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT, array_keys($valid_tagged_fields))[self::AT_N_UNANSWERED_HIGHLIGHT] ?? [];
+        foreach ($highlight as $field_name => $params) {
+            $color = strip_tags(trim($params["params"], "'\""));
+            if ($color == "") $color = "red";
+            $highlight[$field_name] = $color;
+        }
         // Prepare config
         $this->init_config();
         $config = array(
@@ -77,6 +85,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             "counters" => $valid_tagged_fields,
             "excluded" => array_keys($excluded),
             "alwaysIncluded" => array_keys($always_included),
+            "highlight" => $highlight,
             "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($valid_tagged_fields, $page_fields, $instrument) { 
                 // Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
                 // CALCTEXT and CALCDATE will be filtered out later (JavaScript)
