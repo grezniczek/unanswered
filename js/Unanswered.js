@@ -104,15 +104,15 @@ function count() {
 
 function hooked_setDataEntryFormValuesChanged(field) {
     orig_setDataEntryFormValuesChanged(field);
+    log('Counting after setDataEntryFormValuesChanged for field:', field, counting);
     if (!counting) {
-        log('Counting after setDataEntryFormValuesChanged for field:', field);
         count();
     }
 }
 function hooked_doBranching(field) {
     orig_doBranching(field);
+    log('Counting after doBranching for field:', field, counting);
     if (!counting) {
-        log('Counting after doBranching for field:', field);
         count();
     }
 }
