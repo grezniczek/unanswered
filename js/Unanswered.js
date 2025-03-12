@@ -56,7 +56,7 @@ function count(initiator = '') {
     const counts = {};
     Object.keys(config.counters).forEach(key => counts[key] = 0);
     const missing = {};
-    Object.keys(config.highlight).forEach(key => missing[key] = []);
+    Object.keys(config.highlightProgressive).forEach(key => missing[key] = []);
     for (const field of config.fields) {
         if (config.excluded.includes(field)) continue;
         const $tr = $('tr[sq_id="' + field + '"]');
@@ -152,7 +152,7 @@ function toggleHighlight(initiator, missing) {
                 $container.addClass('n-unanswered-highlight');
                 log('Highlighting field "' + field + '"');
             }
-            $container.css('--n-unanswered-highlight-color', config.highlight[counter]);
+            $container.css('--n-unanswered-highlight-color', config.highlightProgressive[counter]);
         }
     });
 }

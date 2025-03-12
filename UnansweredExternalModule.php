@@ -3,31 +3,37 @@
 namespace DE\RUB\UnansweredExternalModule;
 
 use Exception;
+use Project;
 use RCView;
 
 class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 {
     private $js_debug = false;
 
-    /** @var \Project */
+    /** @var Project The current project */
     private $proj = null;
+    /** @var int|null Project ID */
     private $project_id = null;
 
     const AT_N_UNANSWERED = "@N-UNANSWERED";
     const AT_N_UNANSWERED_EXCLUDED = "@N-UNANSWERED-EXCLUDED";
     const AT_N_UNANSWERED_ALWAYS_INCLUDED = "@N-UNANSWERED-ALWAYS-INCLUDED";
-    const AT_N_UNANSWERED_HIGHLIGHT = "@N-UNANSWERED-HIGHLIGHT";
+    const AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE = "@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE";
+    const AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG = "@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG";
+    const AT_N_UNANSWERED_DIALOG = "@N-UNANSWERED-DIALOG";
 
     #region Hooks
 
     function redcap_data_entry_form($project_id, $record = NULL, $instrument, $event_id, $group_id = NULL, $repeat_instance = 1)
     {
-        $this->inject_unanswered($project_id, $instrument, false);
+        $this->init_proj($project_id);
+        $this->inject_unanswered($instrument, false);
     }
 
     function redcap_survey_page($project_id, $record = NULL, $instrument, $event_id, $group_id = NULL, $survey_hash, $response_id = NULL, $repeat_instance = 1)
     {
-        $this->inject_unanswered($project_id, $instrument, true);
+        $this->init_proj($project_id);
+        $this->inject_unanswered($instrument, true);
     }
 
     #endregion
@@ -39,9 +45,8 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
      * @param string $instrument
      * @param boolean $is_survey 
      */
-    private function inject_unanswered($project_id, $instrument, $is_survey)
+    private function inject_unanswered($instrument, $is_survey)
     {
-        $this->init_proj($project_id);
         // Check for N-UNANSWERED action tag
         require_once "classes/ActionTagHelper.php";
         $page_fields = $this->get_page_fields($instrument, $is_survey);
@@ -60,7 +65,13 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
                     $list = $this->add_section_fields($list, $page_fields);
                     $list = array_intersect($list, array_keys($page_fields));
                 }
-                $valid_tagged_fields[$field_name] = $list;
+                $valid_tagged_fields[$field_name] = [
+                    "fields" => $list,
+                    "excluded" => [],
+                    "highlightProgressive" => false,
+                    "highlightAfterDialog" => false,
+                    "dialog" => null,
+                ];
             }
         }
         if (!count($valid_tagged_fields)) {
@@ -68,14 +79,18 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
         }
         // Check for N-UNANSWERED-EXCLUDED action tag
         $excluded = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_EXCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_EXCLUDED] ?? [];
+
+
+        // TODO
+
         // Check for N-UNANSWERED-EMBEDDED-INCLUDED action tag
         $always_included = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_ALWAYS_INCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_ALWAYS_INCLUDED] ?? [];
-        // Check for N-UNANSWERED-HIGHLIGHT action tag (must be applied with the N-UNANSWERED action tag)
-        $highlight = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT, array_keys($valid_tagged_fields))[self::AT_N_UNANSWERED_HIGHLIGHT] ?? [];
-        foreach ($highlight as $field_name => $params) {
+        // Check for N-UNANSWERED-HIGHLIGHT-PROGRESSIVE action tag (must be applied with the N-UNANSWERED action tag)
+        $highlight_progressive = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE, array_keys($valid_tagged_fields))[self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE] ?? [];
+        foreach ($highlight_progressive as $field_name => $params) {
             $color = strip_tags(trim($params["params"], "'\""));
             if ($color == "") $color = "red";
-            $highlight[$field_name] = $color;
+            $highlight_progressive[$field_name] = $color;
         }
         // Prepare config
         $this->init_config();
@@ -85,7 +100,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             "counters" => $valid_tagged_fields,
             "excluded" => array_keys($excluded),
             "alwaysIncluded" => array_keys($always_included),
-            "highlight" => $highlight,
+            "highlightProgressive" => $highlight_progressive,
             "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($valid_tagged_fields, $page_fields, $instrument) { 
                 // Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
                 // CALCTEXT and CALCDATE will be filtered out later (JavaScript)
@@ -152,7 +167,6 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 
     /**
      * Gets a list of field on the page
-     * @param string $project_id 
      * @param string $form 
      * @param boolean $is_survey
      * @return array<string, array> 
