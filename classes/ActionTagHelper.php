@@ -25,6 +25,15 @@ class ActionTagHelper
      */
     static function getActionTags($tags = NULL, $fields = NULL, $instruments = NULL) {
 
+
+
+        // Need to consider @IF action tag
+        // \Form::replaceIfActionTag($fieldInfo->field_annotation, $project_id, $record ?? "1", $event_id, $instrument, $repeat_instance);
+        //     if (strpos($evaluatedFieldAnnotation, "@".SurveyAuthExternalModule::$ACTIONTAG)) {
+        //         array_push($fields, new SurveyAuthInfo($fieldInfo->field_name, $evaluatedFieldAnnotation, $dataDictionary));
+        //     }
+
+
         // Check to see if this search has been cached
         $arg_key = md5(json_encode(func_get_args()));
         if (isset(self::$cache[$arg_key])) {
