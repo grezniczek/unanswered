@@ -122,35 +122,37 @@ function count(initiator = '') {
 
 //#region Highlighting
 
-function toggleHighlight(initiator, missing) {
-    return;
+function toggleHighlight(initiator, missing, afterDialog = false) {
     if (initiator == '') return;
     initiator = initiator.replace('___radio', '').replace('__chkn__', '');
-    log('Highlighting missing fields after change to "' + initiator + '":', missing);
+    log('Checking to highlight missing fields after change to "' + initiator + '":', missing);
+    let bottom = Number.MAX_VALUE;
     // Get y-coordinate of initiator field
-    const $tr = $('tr[sq_id="' + initiator + '"]');
-    const $container = $tr.hasClass('row-field-embedded') ? $('.rc-field-embed[var="' + initiator + '"]').parents('tr[sq_id]') : $tr;
-    if ($container.length == 0) return;
-    $container.removeClass('n-unanswered-highlight').find('.n-unanswered-highlight').removeClass('n-unanswered-highlight');
-    const bottom = ($container?.offset()?.top ?? 0) + ($container.find('td.data').height() ?? 0);
+    if (afterDialog == false) {
+        const $tr = $('tr[sq_id="' + initiator + '"]');
+        const $container = $tr.hasClass('row-field-embedded') ? $('.rc-field-embed[var="' + initiator + '"]').parents('tr[sq_id]') : $tr;
+        if ($container.length == 0) return;
+        $container.removeClass('n-unanswered-highlight').find('.n-unanswered-highlight').removeClass('n-unanswered-highlight');
+        bottom = ($container?.offset()?.top ?? 0) + ($container.find('td.data').height() ?? 0);
+    }
     // Loop through missing fields
-    Object.keys(missing).forEach(counter => {
-        const fields = missing[counter];
-        if (fields.length == 0) return;
+    for (const counterName in missing) {
+        const fields = missing[counterName];
         for (const field of fields) {
             const $tr = $('tr[sq_id="' + field + '"]');
             const $container = $tr.hasClass('row-field-embedded') ? $('.rc-field-embed[var="' + field + '"]') : $tr;
             if ($container.length == 0) continue;
+            let top = afterDialog ? Number.MIN_VALUE : $container?.offset()?.top ?? 0;
             // Should we highlight?
-            const top = $container?.offset()?.top ?? 0;
-            log('Checking to highlight field "' + field + '":', bottom, '>', top, $container);
-            if (bottom > top || initiator == field) {
+            const color = afterDialog ? config.counters[counterName].highlightDialog : config.counters[counterName].highlightProgressive;
+            // log('Checking to highlight field "' + field + '":', bottom, '>', top, $container);
+            if (color != '' && (bottom > top || initiator == field)) {
                 $container.addClass('n-unanswered-highlight');
-                log('Highlighting field "' + field + '"');
+                $container.css('--n-unanswered-highlight-color', color);
+                log('Highlighted field "' + field + '" for counter "' + counterName + '" (color: ' + color + ') in container:', $container);
             }
-            $container.css('--n-unanswered-highlight-color', config.highlightProgressive[counter]);
         }
-    });
+    }
 }
 
 //#endregion

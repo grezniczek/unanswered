@@ -10,11 +10,11 @@
 .n-unanswered-highlight [data-kind="field-value"] select {
     outline: 2px solid var(--n-unanswered-highlight-color);
 }
-tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed input,
-tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed textarea,
-tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed .sldrtd,
-tr.n-unanswered-highlight .rc-field-embed a.fileuploadlink,
-tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed select {
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed:not(.n-unanswered-highlight) input,
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed:not(.n-unanswered-highlight) textarea,
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed:not(.n-unanswered-highlight) .sldrtd,
+tr.n-unanswered-highlight .rc-field-embed:not(.n-unanswered-highlight) a.fileuploadlink,
+tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed:not(.n-unanswered-highlight) select {
     outline: none;
 }
 
