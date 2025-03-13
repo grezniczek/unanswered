@@ -208,7 +208,7 @@ function showDialog(dialogField, n, ob) {
         }
         content = content.replace(match[0], '');
     }
-    // Setup the dialog
+    // Setup and show the dialog
     let $dlg = $('#n-unanswered-dialog');
     if ($dlg.length > 0) $dlg.remove();
 
@@ -225,6 +225,11 @@ function showDialog(dialogField, n, ob) {
                 html: cancelBtnLabel,
                 click: function() {
                     $(this).dialog('close');
+                    // Need to re-enable the survey submit button
+                    if (config.isSurvey) {
+                        log($btn);
+                        $btn.button('enable');
+                    }
                 }
             },
             {
