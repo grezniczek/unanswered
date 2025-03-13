@@ -225,6 +225,7 @@ function showDialog(dialogField, n, ob) {
                 html: cancelBtnLabel,
                 click: function() {
                     $(this).dialog('close');
+                    toggleHighlight(dialogField, missing, true);
                     // Need to re-enable the survey submit button
                     if (config.isSurvey) {
                         log($btn);
@@ -265,6 +266,12 @@ function hooked_doBranching(field) {
     }
 }
 
+/**
+ * Hooked function to handle data entry / survey submission.
+ * It counts unanswered fields and shows a dialog if there are any unanswered fields.
+ * @param {string|object} ob The object or string representing the submit button.
+ * @returns {boolean} Returns false if a dialog is shown, otherwise calls the original data entry submit function.
+ */
 function hooked_dataEntrySubmit(ob) {
     const submitMode = (typeof ob == 'string' ? ob : $(ob).attr('id') ?? '');
     log('Submitting data entry ...', submitMode);
@@ -286,7 +293,7 @@ function hooked_dataEntrySubmit(ob) {
             return false;
         }
     }
-    orig_dataEntrySubmit(ob);
+    return orig_dataEntrySubmit(ob);
 }
 
 //#endregion
