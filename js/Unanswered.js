@@ -164,7 +164,7 @@ function toggleHighlight(initiator, missing, afterDialog = false) {
             if ($container.length == 0) continue;
             let top = afterDialog ? Number.MIN_VALUE : $container?.offset()?.top ?? 0;
             // Should we highlight?
-            const color = afterDialog ? config.counters[counterName].highlightDialog : config.counters[counterName].highlightProgressive;
+            const color = afterDialog ? config.counters[counterName].highlightAfterDialog : config.counters[counterName].highlightProgressive;
             // log('Checking to highlight field "' + field + '":', bottom, '>', top, $container);
             if (color != '' && (bottom > top || initiator == field)) {
                 $container.addClass('n-unanswered-highlight');
