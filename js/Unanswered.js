@@ -54,62 +54,57 @@ function count(initiator = '') {
     log('Counting (initiator: ' + initiator + ') ...');
     counting = true;
     const counts = {};
-    Object.keys(config.counters).forEach(key => counts[key] = 0);
     const missing = {};
-    Object.keys(config.highlightProgressive).forEach(key => missing[key] = []);
+    Object.keys(config.counters).forEach(key => { counts[key] = 0; missing[key] = []; });
     for (const field of config.fields) {
-        if (config.excluded.includes(field)) continue;
-        const $tr = $('tr[sq_id="' + field + '"]');
-        // Skip some fields based on TR state
-        if ($tr.hasClass('\@CALCTEXT') || 
-            $tr.hasClass('\@CALCDATE') || 
-            $tr.hasClass('\@HIDDEN') || 
-            ($tr.css('display') == 'none' && !$tr.hasClass('row-field-embedded'))) {
-                continue;
-        }
-        if (config.isSurvey && $tr.hasClass('\@HIDDEN-SURVEY')) continue;
-        if (!config.isSurvey && $tr.hasClass('\@HIDDEN-FORM')) continue;
-        // Skip any embedded fields that are embedded within a radio or checkbox choice, unless they are marked with @N-UNANSWERED-ALWAYS-INCLUDED
-        if (!config.alwaysIncluded.includes(field) && $tr.hasClass('row-field-embedded')) {
-            const $container = $('.rc-field-embed[var="' + field + '"]').parents('[data-mlm-type="enum"]').first();
-            if ($container.length > 0) {
-                const id = $container.is('.ec') ? ($container.parent().attr('for') ?? '') : ($container.attr('for') ?? '');
-                const checked = $('input#' + id).prop('checked');
-                if (!checked) {
-                    log('Skipping radio/checkbox-embedded field:', field, id);
+        for (const counter_name in config.counters) {
+            const counter = config.counters[counter_name];
+            if (counter.fields.length > 0 && !counter.fields.includes(field)) continue;
+            if (counter.excluded.includes(field)) continue;
+            const $tr = $('tr[sq_id="' + field + '"]');
+            // Skip some fields based on TR state
+            if ($tr.hasClass('\@CALCTEXT') || 
+                $tr.hasClass('\@CALCDATE') || 
+                $tr.hasClass('\@HIDDEN') || 
+                ($tr.css('display') == 'none' && !$tr.hasClass('row-field-embedded'))) {
                     continue;
+            }
+            if (config.isSurvey && $tr.hasClass('\@HIDDEN-SURVEY')) continue;
+            if (!config.isSurvey && $tr.hasClass('\@HIDDEN-FORM')) continue;
+            // Skip any embedded fields that are embedded within a radio or checkbox choice, unless they are marked with @N-UNANSWERED-ALWAYS-INCLUDED
+            if (!counter.alwaysIncluded.includes(field) && $tr.hasClass('row-field-embedded')) {
+                const $container = $('.rc-field-embed[var="' + field + '"]').parents('[data-mlm-type="enum"]').first();
+                if ($container.length > 0) {
+                    const id = $container.is('.ec') ? ($container.parent().attr('for') ?? '') : ($container.attr('for') ?? '');
+                    const checked = $('input#' + id).prop('checked');
+                    if (!checked) {
+                        log('Skipping radio/checkbox-embedded field:', field, id);
+                        continue;
+                    }
                 }
             }
-        }
-        // Check value
-        if (typeof document['form'][field] != 'undefined') {
-            const val = (document['form'][field].value == '') ? 1 : 0;
-            Object.keys(counts).forEach(key => {
-                if (config.counters[key].length == 0 || config.counters[key].includes(field)) {
-                    counts[key] += val;
-                    if (missing.hasOwnProperty(key) && val == 1) missing[key].push(field);
+            // Check value
+            if (typeof document['form'][field] != 'undefined') {
+                const val = (document['form'][field].value == '') ? 1 : 0;
+                counts[counter_name] += val;
+                if (val == 1) missing[counter_name].push(field);
+                log('Checking field "' + field + '":', val == 0 ? 'Answered' : 'Unanswered');
+            }
+            else {
+                // Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
+                const isRequired = $tr.attr('req') == '1';
+                // Check if it is embedded and potentiall hidden, in which case we skip it
+                const isHidden = $('.rc-field-embed[var="' + field + '"]').css('display') == 'none';
+                if (isRequired && !isHidden) {
+                    let oneChecked = false;
+                    $('input[name="__chkn__' + field + '"]').each(function() {
+                        if ($(this).is(':checked')) oneChecked = true;
+                    });
+                    const val = (oneChecked) ? 0 : 1;
+                    counts[counter_name] += val;
+                    if (val == 1) missing[counter_name].push(field);
+                    log('Checking checkbox field "' + field + '":', val == 0 ? 'Answered' : 'Unanswered');
                 }
-            });
-            log('Checking field "' + field + '":', val == 0 ? 'Answered' : 'Unanswered');
-        }
-        else {
-            // Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
-            const isRequired = $tr.attr('req') == '1';
-            // Check if it is embedded and potentiall hidden, in which case we skip it
-            const isHidden = $('.rc-field-embed[var="' + field + '"]').css('display') == 'none';
-            if (isRequired && !isHidden) {
-                let oneChecked = false;
-                $('input[name="__chkn__' + field + '"]').each(function() {
-                    if ($(this).is(':checked')) oneChecked = true;
-                });
-                const val = (oneChecked) ? 0 : 1;
-                Object.keys(counts).forEach(key => {
-                    if (config.counters[key].length == 0 || config.counters[key].includes(field)) {
-                        counts[key] += val;
-                        if (missing.hasOwnProperty(key) && val == 1) missing[key].push(field);
-                    }
-                });
-                log('Checking checkbox field "' + field + '":', val == 0 ? 'Answered' : 'Unanswered');
             }
         }
     }
@@ -128,6 +123,7 @@ function count(initiator = '') {
 //#region Highlighting
 
 function toggleHighlight(initiator, missing) {
+    return;
     if (initiator == '') return;
     initiator = initiator.replace('___radio', '').replace('__chkn__', '');
     log('Highlighting missing fields after change to "' + initiator + '":', missing);

@@ -55,7 +55,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             return; // We are done
         }
         // Validate action tag use (must be on a field of type 'Text Box' with validation set to 'Integer')
-        $valid_tagged_fields = [];
+        $counters = [];
         foreach ($tagged as $field_name => $params) {
             $field = $page_fields[$field_name];
             if ($field["element_type"] == "text" && $field["element_validation_type"] == "int") {
@@ -65,46 +65,85 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
                     $list = $this->add_section_fields($list, $page_fields);
                     $list = array_intersect($list, array_keys($page_fields));
                 }
-                $valid_tagged_fields[$field_name] = [
+                $counters[$field_name] = [
                     "fields" => $list,
                     "excluded" => [],
-                    "highlightProgressive" => false,
-                    "highlightAfterDialog" => false,
+                    "alwaysIncluded" => [],
+                    "highlightProgressive" => "",
+                    "highlightAfterDialog" => "",
                     "dialog" => null,
                 ];
             }
         }
-        if (!count($valid_tagged_fields)) {
+        if (!count($counters)) {
             return; // No valid fields - we are done
         }
         // Check for N-UNANSWERED-EXCLUDED action tag
         $excluded = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_EXCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_EXCLUDED] ?? [];
-
-
-        // TODO
-
+        foreach ($excluded as $field_name => $params) {
+            $list = trim($params["params"], "'\"");
+            $list = array_filter(array_unique(array_map("trim", explode(",", $list))), "strlen");
+            if (count($list) == 0) $list = array_keys($counters);
+            foreach ($list as $counter_field) {
+                if (isset($counters[$counter_field]) && (count($counters[$counter_field]["fields"]) == 0 || in_array($field_name, $counters[$counter_field]["fields"]))) {
+                    $counters[$counter_field]["excluded"][] = $field_name;
+                }
+            }
+        }
         // Check for N-UNANSWERED-EMBEDDED-INCLUDED action tag
         $always_included = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_ALWAYS_INCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_ALWAYS_INCLUDED] ?? [];
+        foreach ($always_included as $field_name => $params) {
+            $list = trim($params["params"], "'\"");
+            $list = array_filter(array_unique(array_map("trim", explode(",", $list))), "strlen");
+            if (count($list) == 0) $list = array_keys($counters);
+            foreach ($list as $counter_field) {
+                if (isset($counters[$counter_field]) && (count($counters[$counter_field]["fields"]) == 0 || in_array($field_name, $counters[$counter_field]["fields"]))) {
+                    $counters[$counter_field]["alwaysIncluded"][] = $field_name;
+                }
+            }
+        }
         // Check for N-UNANSWERED-HIGHLIGHT-PROGRESSIVE action tag (must be applied with the N-UNANSWERED action tag)
-        $highlight_progressive = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE, array_keys($valid_tagged_fields))[self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE] ?? [];
-        foreach ($highlight_progressive as $field_name => $params) {
-            $color = strip_tags(trim($params["params"], "'\""));
-            if ($color == "") $color = "red";
-            $highlight_progressive[$field_name] = $color;
+        $highlight_progressive = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE, array_keys($counters))[self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE] ?? [];
+        foreach ($highlight_progressive as $counter_field => $params) {
+            if (isset($counters[$counter_field])) {
+                $color = strip_tags(trim($params["params"], "'\""));
+                if ($color == "") $color = "red";
+                $counters[$counter_field]["highlightProgressive"] = $color;
+            }
+        }
+        // Check for N-UNANSWERED-HIGHLIGHT-PROGRESSIVE action tag (must be applied with the N-UNANSWERED action tag)
+        $highlight_after_dialog = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG, array_keys($counters))[self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG] ?? [];
+        foreach ($highlight_after_dialog as $counter_field => $params) {
+            if (isset($counters[$counter_field])) {
+                $color = strip_tags(trim($params["params"], "'\""));
+                if ($color == "") $color = "red";
+                $counters[$counter_field]["highlightAfterDialog"] = $color;
+            }
+        }
+        // Check for N-UNANSWERED-DIALOG action tag
+        $dialog = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_DIALOG, array_keys($counters))[self::AT_N_UNANSWERED_DIALOG] ?? [];
+        foreach ($dialog as $counter_field => $params) {
+            $dialog_field = trim($params["params"], "'\"");
+            if ($dialog_field != "" && array_key_exists($dialog_field, $page_fields)) {
+                $counters[$counter_field]["dialog"] = $dialog_field;
+            }
+        }
+        // Ensure uniqueness in all arrays
+        foreach ($counters as $_ => &$counter) {
+            $counter["alwaysIncluded"] = array_unique($counter["alwaysIncluded"]);
+            $counter["excluded"] = array_unique($counter["excluded"]);
+            $counter["fields"] = array_unique($counter["fields"]);
         }
         // Prepare config
         $this->init_config();
         $config = array(
             "version" => $this->VERSION,
             "debug" => $this->js_debug,
-            "counters" => $valid_tagged_fields,
-            "excluded" => array_keys($excluded),
-            "alwaysIncluded" => array_keys($always_included),
-            "highlightProgressive" => $highlight_progressive,
-            "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($valid_tagged_fields, $page_fields, $instrument) { 
+            "counters" => $counters,
+            "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($counters, $page_fields, $instrument) { 
                 // Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
                 // CALCTEXT and CALCDATE will be filtered out later (JavaScript)
-                return !array_key_exists($field_name, $valid_tagged_fields) &&
+                return !array_key_exists($field_name, $counters) &&
                     $page_fields[$field_name]["element_type"] != "descriptive" && 
                     $page_fields[$field_name]["element_type"] != "calc" && 
                     $field_name != $this->proj->table_pk && 
@@ -117,8 +156,9 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
         $ih = InjectionHelper::init($this);
         $ih->js("js/Unanswered.js", $is_survey);
         $ih->css("css/Unanswered.css", $is_survey);
-        $this->initializeJavascriptModuleObject();
-        $jsmo_name = $this->getJavascriptModuleObjectName();
+        // $this->initializeJavascriptModuleObject();
+        // $jsmo_name = $this->getJavascriptModuleObjectName();
+        $jsmo_name = "null";
         print \RCView::script("DE_RUB_Unanswered.init(".json_encode($config).", $jsmo_name);");
     }
 
