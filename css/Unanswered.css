@@ -25,3 +25,6 @@ tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed:not(.n-unans
 .n-unanswered-highlight div.enhancedchoice label {
     border: none;
 }
+.n-unanswered-dialog {
+    display: none;
+}

@@ -9,6 +9,7 @@ use RCView;
 class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 {
     private $js_debug = false;
+    private $no_dialog_on_save_stay = false;
 
     /** @var Project The current project */
     private $proj = null;
@@ -139,6 +140,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
         $config = array(
             "version" => $this->VERSION,
             "debug" => $this->js_debug,
+            "dialogOnSaveStay" => !$this->no_dialog_on_save_stay,
             "counters" => $counters,
             "fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($counters, $page_fields, $instrument) { 
                 // Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
@@ -293,8 +295,8 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
     private function init_config()
     {
         $this->require_proj();
-        $setting = $this->getProjectSetting("javascript-debug");
-        $this->js_debug = $setting == true;
+        $this->js_debug  = $this->getProjectSetting("javascript-debug") == true;
+        $this->no_dialog_on_save_stay = $this->getProjectSetting("no-dialog-on-save-stay") == true;
     }
 
     #endregion

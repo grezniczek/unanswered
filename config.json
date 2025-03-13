@@ -34,7 +34,7 @@
         },
         {
             "tag": "@N-UNANSWERED-DIALOG",
-            "description": "Attach this action together with the <code>@N-UNANSWERED</code> action tag only, i.e., to the same field. When set, the label of the current field will be shown as a dialog when the user or survey respondent tries to save the page with unanswered questions (i.e., the count being > 0). The following optional parameters can be added: (1) The name of another field (e.g., a descriptive field) can be given, in which case that field's label will serve as the dialog's content. (2) A threshold value for the unanswered count that must be reached for the dialog to show. This must be an integer value. When both, a field name and a threshold are to be set, the field must be named first and the threshold must follow after a comma. The default threshold is 1. Examples: <code>@N-UNANSWERED-DIALOG='3'</code>, <code>@N-UNANSWERED-DIALOG='desc_dialog,3'</code>.<br><br>The dialog shown can be customized to some extent. By default, the title will be 'Alert' and the buttons will be labeled 'Cancel' and what the original save/continue button was labeled. To customize the dialog title and the button labels, these elements can be added to the label, wrapped in double curly braces, i.e., <b>{{type:content}}</b>, where <i>type</i> is <code>title</code>, <code>cancel</code>, or <code>continue</code>, and <i>content</i> is the desired content. Care must be taken to not have any formatting obscure the start (<b>{{type:</b>) and end (<b>}}</b>) of these elements as else they may not be picked up correctly. It is best to not use the Rich Text Editor or to turn it off to inspect the underlying HTML. Some limited formatting of the contents itself is supported.<br>Note: The field used as the dialog's source will be hidden; and it cannot be embedded elsewhere."
+            "description": "Attach this action together with the <code>@N-UNANSWERED</code> action tag only, i.e., to the same field. When set, the label of the current field will be shown as a dialog when the user or survey respondent tries to save the page with unanswered questions (i.e., the count being > 0). The following optional parameters can be added: (1) The name of another field (e.g., a descriptive field) can be given, in which case that field's label will serve as the dialog's content. (2) A threshold value for the unanswered count that must be reached for the dialog to show. This must be an integer value. When both, a field name and a threshold are to be set, the field must be named first and the threshold must follow after a comma. The default threshold is 1. Examples: <code>@N-UNANSWERED-DIALOG='3'</code>, <code>@N-UNANSWERED-DIALOG='desc_dialog,3'</code>.<br><br>The dialog shown can be customized to some extent. By default, the title will be 'NOTICE' and the buttons will be labeled 'Cancel' and what the original save/continue button was labeled. To customize the dialog title and the button labels, these elements can be added to the label, wrapped in double curly braces, i.e., <b>{{type:label}}</b>, where <i>type</i> is <code>title</code>, <code>cancel</code>, or <code>continue</code>, and <i>label</i> is the desired content. Care must be taken to not have any formatting obscure the start (<b>{{type:</b>) and end (<b>}}</b>) of these elements as else they may not be picked up correctly. It is best to not use the Rich Text Editor or to turn it off to inspect the underlying HTML. Some limited formatting of the contents itself is supported.<br>Note: The field used as the dialog's source will be hidden; and it cannot be embedded elsewhere."
         }
     ],
     "system-settings": [
@@ -43,6 +43,11 @@
         {
             "key": "javascript-debug",
             "name": "Output debug information to the browser console",
+            "type": "checkbox"
+        },
+        {
+            "key": "no-dialog-on-save-stay",
+            "name": "Suppress dialogs for 'Save & Stay'",
             "type": "checkbox"
         }
     ]

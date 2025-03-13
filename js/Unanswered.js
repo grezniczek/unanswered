@@ -20,8 +20,11 @@ let config = {};
 
 let orig_setDataEntryFormValuesChanged = null;
 let orig_doBranching = null;
+let orig_dataEntrySubmit = null;
 
 let counting = false;
+let counts = {};
+let missing = {};
 
 //#endregion
 
@@ -35,26 +38,43 @@ function initialize(config_data, jsmo = null) {
     config.JSMO = jsmo;
     log('Initialzing ...', config);
     
+    // Hijack Hooks
     orig_setDataEntryFormValuesChanged = window['setDataEntryFormValuesChanged'];
     window['setDataEntryFormValuesChanged'] = hooked_setDataEntryFormValuesChanged;
     orig_doBranching = window['doBranching'];
     window['doBranching'] = hooked_doBranching;
+    orig_dataEntrySubmit = window['dataEntrySubmit'];
+    window['dataEntrySubmit'] = hooked_dataEntrySubmit;
+
+    // Additional triggers
     if (config.isSurvey) {
         // On surveys, we need to hook into some elements to get informed
         $('[data-kind="field-value"] input').on('change', (e) => count($(e.target).attr('name')));
         $('[data-kind="field-value"] textarea').on('change', (e) => count($(e.target).attr('name')));
         $('[data-kind="field-value"] select').on('change', (e) => count($(e.target).attr('name')));
     }
+
+    // Hide all dialogs
+    for (const counterName in config.counters) {
+        if (config.counters[counterName].dialog != null) {
+            $('tr[sq_id="' + config.counters[counterName].dialog + '"]').addClass('n-unanswered-dialog');
+        }
+    }
+
     // Initial count
     count();
 }
 
+/**
+ * Counts unanswered fields
+ * @param {string} initiator Field that triggered the count
+ */
 function count(initiator = '') {
     if (counting) return;
     log('Counting (initiator: ' + initiator + ') ...');
     counting = true;
-    const counts = {};
-    const missing = {};
+    counts = {};
+    missing = {};
     Object.keys(config.counters).forEach(key => { counts[key] = 0; missing[key] = []; });
     for (const field of config.fields) {
         for (const counter_name in config.counters) {
@@ -157,6 +177,72 @@ function toggleHighlight(initiator, missing, afterDialog = false) {
 
 //#endregion
 
+//#region Dialog
+
+function showDialog(dialogField, n, ob) {
+    const regex = /{{(\w+):\s*(?:<\/?\w+[^>]*>)*([\s\S]*?)(?:<[^>]*>)*}}/mg;
+    const srcContent = $('tr[sq_id="' + dialogField + '"] div[data-kind=field-label] div[data-mlm-type=label]').html();
+    let cancelBtnLabel = window['lang'].global_53; // Cancel
+    const $btn = typeof ob == 'string' ? $('#' + ob) : $(ob);
+    let continueBtnLabel = $btn.html();
+    let content = srcContent;
+    let title = window['lang'].global_03; // NOTICE
+    let match;
+    while ((match = regex.exec(srcContent)) !== null) {
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (match.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+        switch (match[1]) {
+            case 'title':
+                title = match[2];
+                break;
+            case 'continue':
+                continueBtnLabel = match[2];
+                break;
+            case 'cancel':
+                cancelBtnLabel = match[2];
+                break;
+            default:
+                break;
+        }
+        content = content.replace(match[0], '');
+    }
+    // Setup the dialog
+    let $dlg = $('#n-unanswered-dialog');
+    if ($dlg.length > 0) $dlg.remove();
+
+    $('<div id="n-unanswered-dialog"></div>').dialog({
+        bgiFrame: true,
+        modal: true,
+        title: title,
+        width: 500,
+        open: function() {
+            $(this).html(content);
+        },
+        buttons: [
+            {
+                html: cancelBtnLabel,
+                click: function() {
+                    $(this).dialog('close');
+                }
+            },
+            {
+                html: continueBtnLabel,
+                click: function() {
+                    $(this).dialog('close');
+                    orig_dataEntrySubmit(ob);
+                }
+            }
+        ],
+        autoOpen: true
+    });
+    log('Showing dialog:', dialogField, continueBtnLabel, cancelBtnLabel, title, content);
+}
+
+
+//#endregion
+
 //#region Hijack Hooks
 
 function hooked_setDataEntryFormValuesChanged(field) {
@@ -172,6 +258,30 @@ function hooked_doBranching(field) {
     if (!counting) {
         count(field);
     }
+}
+
+function hooked_dataEntrySubmit(ob) {
+    const submitMode = (typeof ob == 'string' ? ob : $(ob).attr('id') ?? '');
+    log('Submitting data entry ...', submitMode);
+    // No action for Save & Stay ('savecontinue')
+    if (config.dialogOnSaveStay || submitMode != 'submit-btn-savecontinue') {
+        count();
+        let dialogField = '';
+        let n = 0;
+        // Which dialog to show? Last one with missing fields wins
+        for (const counterName in counts) {
+            if (config.counters[counterName].dialog != null && counts[counterName] > 0) {
+                dialogField = config.counters[counterName].dialog;
+                n = counts[counterName];
+            }
+        }
+        if (dialogField != '') {
+            // Show dialog
+            showDialog(dialogField, n, ob);
+            return false;
+        }
+    }
+    orig_dataEntrySubmit(ob);
 }
 
 //#endregion
