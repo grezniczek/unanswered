@@ -28,13 +28,29 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
     function redcap_data_entry_form($project_id, $record = NULL, $instrument, $event_id, $group_id = NULL, $repeat_instance = 1)
     {
         $this->init_proj($project_id);
-        $this->inject_unanswered($instrument, false);
+        $context = [
+            "project_id" => $project_id,
+            "record" => $record,
+            "instrument" => $instrument,
+            "event_id" => $event_id,
+            "repeat_instance" => $repeat_instance,
+            "is_survey" => false,
+        ];
+        $this->inject_unanswered($context);
     }
 
     function redcap_survey_page($project_id, $record = NULL, $instrument, $event_id, $group_id = NULL, $survey_hash, $response_id = NULL, $repeat_instance = 1)
     {
         $this->init_proj($project_id);
-        $this->inject_unanswered($instrument, true);
+        $context = [
+            "project_id" => $project_id,
+            "record" => $record,
+            "instrument" => $instrument,
+            "event_id" => $event_id,
+            "repeat_instance" => $repeat_instance,
+            "is_survey" => true,
+        ];
+        $this->inject_unanswered($context);
     }
 
     #endregion
@@ -46,12 +62,12 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
      * @param string $instrument
      * @param boolean $is_survey 
      */
-    private function inject_unanswered($instrument, $is_survey)
+    private function inject_unanswered($context)
     {
         // Check for N-UNANSWERED action tag
         require_once "classes/ActionTagHelper.php";
-        $page_fields = $this->get_page_fields($instrument, $is_survey);
-        $tagged = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED, array_keys($page_fields))[self::AT_N_UNANSWERED] ?? [];
+        $page_fields = $this->get_page_fields($context["instrument"], $context["is_survey"]);
+        $tagged = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED, array_keys($page_fields), null, $context)[self::AT_N_UNANSWERED] ?? [];
         if (!count($tagged)) {
             return; // We are done
         }
@@ -79,8 +95,16 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
         if (!count($counters)) {
             return; // No valid fields - we are done
         }
+        // Get all other action tags
+        $action_tags = ActionTagHelper::getActionTags([
+                self::AT_N_UNANSWERED_EXCLUDED,
+                self::AT_N_UNANSWERED_ALWAYS_INCLUDED,
+                self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE,
+                self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG,
+                self::AT_N_UNANSWERED_DIALOG
+            ], array_keys($page_fields), null, $context);
         // Check for N-UNANSWERED-EXCLUDED action tag
-        $excluded = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_EXCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_EXCLUDED] ?? [];
+        $excluded = $action_tags[self::AT_N_UNANSWERED_EXCLUDED] ?? [];
         foreach ($excluded as $field_name => $params) {
             $list = trim($params["params"], "'\"");
             $list = array_filter(array_unique(array_map("trim", explode(",", $list))), "strlen");
@@ -92,7 +116,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             }
         }
         // Check for N-UNANSWERED-EMBEDDED-INCLUDED action tag
-        $always_included = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_ALWAYS_INCLUDED, array_keys($page_fields))[self::AT_N_UNANSWERED_ALWAYS_INCLUDED] ?? [];
+        $always_included = $action_tags[self::AT_N_UNANSWERED_ALWAYS_INCLUDED] ?? [];
         foreach ($always_included as $field_name => $params) {
             $list = trim($params["params"], "'\"");
             $list = array_filter(array_unique(array_map("trim", explode(",", $list))), "strlen");
@@ -104,7 +128,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             }
         }
         // Check for N-UNANSWERED-HIGHLIGHT-PROGRESSIVE action tag (must be applied with the N-UNANSWERED action tag)
-        $highlight_progressive = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE, array_keys($counters))[self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE] ?? [];
+        $highlight_progressive = $action_tags[self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE] ?? [];
         foreach ($highlight_progressive as $counter_field => $params) {
             if (isset($counters[$counter_field])) {
                 $color = strip_tags(trim($params["params"], "'\""));
@@ -113,7 +137,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             }
         }
         // Check for N-UNANSWERED-HIGHLIGHT-PROGRESSIVE action tag (must be applied with the N-UNANSWERED action tag)
-        $highlight_after_dialog = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG, array_keys($counters))[self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG] ?? [];
+        $highlight_after_dialog = $action_tags[self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG] ?? [];
         foreach ($highlight_after_dialog as $counter_field => $params) {
             if (isset($counters[$counter_field])) {
                 $color = strip_tags(trim($params["params"], "'\""));
@@ -122,11 +146,13 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
             }
         }
         // Check for N-UNANSWERED-DIALOG action tag
-        $dialog = ActionTagHelper::getActionTags(self::AT_N_UNANSWERED_DIALOG, array_keys($counters))[self::AT_N_UNANSWERED_DIALOG] ?? [];
+        $dialog = $action_tags[self::AT_N_UNANSWERED_DIALOG] ?? [];
         foreach ($dialog as $counter_field => $params) {
-            $dialog_field = trim($params["params"], "'\"");
-            if ($dialog_field != "" && array_key_exists($dialog_field, $page_fields)) {
-                $counters[$counter_field]["dialog"] = $dialog_field;
+            if (isset($counters[$counter_field])) {
+                $dialog_field = trim($params["params"], "'\"");
+                if ($dialog_field != "" && array_key_exists($dialog_field, $page_fields)) {
+                    $counters[$counter_field]["dialog"] = $dialog_field;
+                }
             }
         }
         // Ensure uniqueness in all arrays

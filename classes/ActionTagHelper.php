@@ -18,21 +18,14 @@ class ActionTagHelper
      * @param null $tags        a single or array of action_tags that you are looking for
      * @param null $fields      a single or array of fields that you want to look in
      * @param null $instruments a single or array of instruments to look in
+     * @param null $context     an array with context ("project_id", "record", "instrument", "event_id", "instance") 
+     *                          needed to evaluate @IF action tags
      * @throws \Exception
      * @return array            [ "tag1": [
      *                              "field_name": [
      *                                  "params": any parameters next to tag (supports string, list, or json)
      */
-    static function getActionTags($tags = NULL, $fields = NULL, $instruments = NULL) {
-
-
-
-        // Need to consider @IF action tag
-        // \Form::replaceIfActionTag($fieldInfo->field_annotation, $project_id, $record ?? "1", $event_id, $instrument, $repeat_instance);
-        //     if (strpos($evaluatedFieldAnnotation, "@".SurveyAuthExternalModule::$ACTIONTAG)) {
-        //         array_push($fields, new SurveyAuthInfo($fieldInfo->field_name, $evaluatedFieldAnnotation, $dataDictionary));
-        //     }
-
+    static function getActionTags($tags = NULL, $fields = NULL, $instruments = NULL, $context = NULL) {
 
         // Check to see if this search has been cached
         $arg_key = md5(json_encode(func_get_args()));
@@ -58,6 +51,9 @@ class ActionTagHelper
         foreach ($metadata as $field) {
             $field_name = $field['field_name'];
             $field_annotation = $field['field_annotation'];
+            if (is_array($context) && strpos($field_annotation, "@IF") !== false) {
+                $field_annotation = \Form::replaceIfActionTag($field_annotation, $context['project_id'] ?? null, $context['record'] ?? null, $context['event_id'] ?? null, $context['instrument'] ?? null, $context['instance'] ?? 1);
+            }
             $parsed_tags = self::parseActionTags($field_annotation);
             // Plugin::log($tags, "DEBUG", "TAGS for $field_name");
             foreach ($parsed_tags as $tag) {
