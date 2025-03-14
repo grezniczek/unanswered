@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@types/jquery": "^3.5.32"
+  },
+  "dependencies": {
+    "@types/jqueryui": "^1.12.24"
   }
 }
