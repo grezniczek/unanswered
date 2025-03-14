@@ -213,7 +213,6 @@ function showDialog(dialogField, n, ob) {
     if ($dlg.length > 0) $dlg.remove();
 
     $('<div id="n-unanswered-dialog"></div>').dialog({
-        bgiFrame: true,
         modal: true,
         title: title,
         width: 500,
