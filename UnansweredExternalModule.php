@@ -25,7 +25,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 
     #region Hooks
 
-    function redcap_data_entry_form($project_id, $record = NULL, $instrument, $event_id, $group_id = NULL, $repeat_instance = 1)
+    function redcap_data_entry_form($project_id, $record, $instrument, $event_id, $group_id, $repeat_instance)
     {
         $this->init_proj($project_id);
         $context = [
@@ -39,7 +39,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
         $this->inject_unanswered($context);
     }
 
-    function redcap_survey_page($project_id, $record = NULL, $instrument, $event_id, $group_id = NULL, $survey_hash, $response_id = NULL, $repeat_instance = 1)
+    function redcap_survey_page($project_id, $record, $instrument, $event_id, $group_id, $survey_hash, $response_id, $repeat_instance)
     {
         $this->init_proj($project_id);
         $context = [
