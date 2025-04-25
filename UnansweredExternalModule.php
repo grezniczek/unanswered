@@ -177,13 +177,13 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
                     $field_name != $this->proj->table_pk && 
                     $field_name != "{$instrument}_complete"; 
             })),
-            "isSurvey" => $is_survey,
+            "isSurvey" => $context["is_survey"],
         );
         // Output JS and init code
         require_once "classes/InjectionHelper.php";
         $ih = InjectionHelper::init($this);
-        $ih->js("js/Unanswered.js", $is_survey);
-        $ih->css("css/Unanswered.css", $is_survey);
+        $ih->js("js/Unanswered.js", $context["is_survey"]);
+        $ih->css("css/Unanswered.css", $context["is_survey"]);
         // $this->initializeJavascriptModuleObject();
         // $jsmo_name = $this->getJavascriptModuleObjectName();
         $jsmo_name = "null";
