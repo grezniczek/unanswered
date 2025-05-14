@@ -9,7 +9,6 @@ use RCView;
 class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 {
 	private $js_debug = false;
-	private $no_dialog_on_save_stay = false;
 
 	/** @var Project The current project */
 	private $proj = null;
@@ -106,6 +105,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 		if (!count($counters)) {
 			return; // No valid fields - we are done
 		}
+		$errors = [];
 		// Get all other action tags
 		$action_tags = ActionTagHelper::getActionTags([
 				self::AT_N_UNANSWERED_EXCLUDED,
@@ -160,10 +160,32 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 		$dialog = $action_tags[self::AT_N_UNANSWERED_DIALOG] ?? [];
 		foreach ($dialog as $counter_field => $params) {
 			if (isset($counters[$counter_field])) {
-				$dialog_field = trim($params["params"], "'\"");
-				if ($dialog_field != "" && array_key_exists($dialog_field, $page_fields)) {
-					$counters[$counter_field]["dialog"] = $dialog_field;
+				$dialog_params = explode(",", trim($params["params"], "'\""));
+				$dialog_field = $counter_field;
+				$dialog_threshold = 1;
+				$dialog_nss = false;
+				foreach ($dialog_params as $dialog_param) {
+					$dialog_param = trim($dialog_param);
+					if ($dialog_param == "NSS") {
+						$dialog_nss = true;
+					}
+					elseif (isinteger($dialog_param)) {
+						if (intval($dialog_param) > 0) {
+							$dialog_threshold = intval($dialog_param);
+						}
+					}
+					elseif (array_key_exists($dialog_param, $page_fields)) {
+						$dialog_field = $dialog_param;
+					}
+					else {
+						$errors[] = "Invalid ". self::AT_N_UNANSWERED_DIALOG . " parameters: " . $params["params"];
+					}
 				}
+				$counters[$counter_field]["dialog"] = [
+					"field" => $dialog_field,
+					"threshold" => $dialog_threshold,
+					"nss" => $dialog_nss
+				];
 			}
 		}
 		// Ensure uniqueness in all arrays
@@ -177,7 +199,6 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 		$config = array(
 			"version" => $this->VERSION,
 			"debug" => $this->js_debug,
-			"dialogOnSaveStay" => !$this->no_dialog_on_save_stay,
 			"counters" => $counters,
 			"fields" => array_values(array_filter(array_keys($page_fields), function ($field_name) use ($counters, $page_fields, $instrument) { 
 				// Filter out fields that are counters, descriptive fields, calc fields, the record id field, and the form_complete field
@@ -333,7 +354,6 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 	{
 		$this->require_proj();
 		$this->js_debug  = $this->getProjectSetting("javascript-debug") == true;
-		$this->no_dialog_on_save_stay = $this->getProjectSetting("no-dialog-on-save-stay") == true;
 	}
 
 	#endregion

@@ -276,23 +276,26 @@ function hooked_doBranching(field) {
 function hooked_dataEntrySubmit(ob) {
 	const submitMode = (typeof ob == 'string' ? ob : $(ob).attr('id') ?? '');
 	log('Submitting data entry ...', submitMode);
-	// No action for Save & Stay ('savecontinue')
-	if (config.dialogOnSaveStay || submitMode != 'submit-btn-savecontinue') {
-		count();
-		let dialogField = '';
-		let n = 0;
-		// Which dialog to show? Last one with missing fields wins
-		for (const counterName in counts) {
-			if (config.counters[counterName].dialog != null && counts[counterName] > 0) {
-				dialogField = config.counters[counterName].dialog;
-				n = counts[counterName];
-			}
+	count();
+	let dialogField = '';
+	let n = 0;
+	// Which dialog to show? Last one with missing fields wins
+	for (const counterName in counts) {
+		if (config.counters[counterName].dialog != null && counts[counterName] > 0) {
+			const dialog = config.counters[counterName].dialog;
+			// Skip when threshold not reached
+			if (counts[counterName] < dialog.threshold) continue;
+			// Skip when set to not trigger on Save & Stay 
+			if (dialog.nss && submitMode == 'submit-btn-savecontinue') continue;
+			dialogField = dialog.field;
+			// Set filter
+			n = counts[counterName];
 		}
-		if (dialogField != '') {
-			// Show dialog
-			showDialog(dialogField, n, ob);
-			return false;
-		}
+	}
+	if (dialogField != '') {
+		// Show dialog
+		showDialog(dialogField, n, ob);
+		return false;
 	}
 	return orig_dataEntrySubmit(ob);
 }
