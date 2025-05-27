@@ -31,11 +31,13 @@ There are no system-level configuration options specific for this module.
 
 ### `@N-UNANSWERED`
 
-This is the main action tag. All others are used together with this one (i.e., on the same field) to fine-tune the behavior of the module or to activate additional features.
+This is the main action tag. All others are used in conjunction with this one (i.e., on the same field) to fine-tune the module's behavior or activate additional features.
 
-`@N-UNANSWERED` counts the number of unanswered fields on a data entry form or survey page, and writes the result into the field it is attached to. This requires that the field is of type '**Text Box**' with the validation set to '**Integer**'. 
+`@N-UNANSWERED` counts the number of unanswered fields on a data entry form or survey page and writes the result into the field to which it is attached. This requires that the field is of type '**Text Box**' with validation set to '**Integer**'.
 
-Optionally, a set of fields (provided as a comma-separated list of field names) can be specified as a parameter to limit counting to this set. For example, `@N-UNANSWERED='field1,field2,field3'` will only consider the fields _field1_, _field2_, and _field3_. Additionally, when a field in the parameter list is prepended with `__` (double underscore), all fields of the section this field is in will be added. This is useful to create a counting behavior that is the same for an instrument, both in data entry mode and in survey mode when showing one page per section. Instead of a set of fields, `*` (asterisk) can be specified as the paramater for this action tag (i.e., `@N-UNANSWERED='*'`), in which case all fields marked as **required** will be counted. When counting required fields, modifiers such as `@N-UNANSWERED-EXCLUDED` will be ignored and not have any effect.
+Optionally, a set of fields (provided as a comma-separated list of field names) can be specified as a parameter to limit counting to those fields. For example, `@N-UNANSWERED='field1,field2,field3'` will only consider the fields _field1_, _field2_, and _field3_. Additionally, when a field name in the parameter list is prepended with `__` (double underscore), all fields in the section that contains that field will be included. This is useful for creating consistent counting behavior across (parts of) an instrument, both in data entry mode and in survey mode (when showing one page per section).
+
+Instead of a set of fields, you may use `*` (asterisk) as the parameter (i.e., `@N-UNANSWERED='*'`), in which case all fields marked as **required** will be counted. When counting required fields, modifiers such as `@N-UNANSWERED-EXCLUDED` will be ignored.
 
 
 
