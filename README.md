@@ -31,13 +31,14 @@ There are no system-level configuration options specific for this module.
 
 ### `@N-UNANSWERED`
 
-This is the main action tag. All others are used in conjunction with this one (i.e., on the same field) to fine-tune the module's behavior or activate additional features.
+This is the primary action tag. All others are used in conjunction with it (i.e., on the same field) to fine-tune the module’s behavior or enable additional features.
 
-`@N-UNANSWERED` counts the number of unanswered fields on a data entry form or survey page and writes the result into the field to which it is attached. This requires that the field is of type '**Text Box**' with validation set to '**Integer**'.
+`@N-UNANSWERED` counts the number of unanswered fields on a data entry form or survey page and writes the result into the field where it is applied. This field must be of type '**Text Box**' with validation set to '**Integer**'.
 
-Optionally, a set of fields (provided as a comma-separated list of field names) can be specified as a parameter to limit counting to those fields. For example, `@N-UNANSWERED='field1,field2,field3'` will only consider the fields _field1_, _field2_, and _field3_. Additionally, when a field name in the parameter list is prepended with `__` (double underscore), all fields in the section that contains that field will be included. This is useful for creating consistent counting behavior across (parts of) an instrument, both in data entry mode and in survey mode (when showing one page per section).
+Optionally, a comma-separated list of field names can be provided as a parameter to restrict the count to specific fields. For example, `@N-UNANSWERED='field1,field2,field3'` limits the count to _field1_, _field2_, and _field3_. If a field name in this list is prefixed with `__` (double underscore), all fields within the same section as that field will be included. This allows for consistent behavior across instruments in both data entry and survey modes (e.g., when surveys are displayed one section per page).
 
-Instead of a set of fields, you may use `*` (asterisk) as the parameter (i.e., `@N-UNANSWERED='*'`), in which case all fields marked as **required** will be counted. When counting required fields, modifiers such as `@N-UNANSWERED-EXCLUDED` will be ignored.
+Alternatively, the asterisk `*` may be used as the parameter (e.g., `@N-UNANSWERED='*'`) to count all fields marked as **required**. When using this option, modifiers such as `@N-UNANSWERED-EXCLUDED` will be ignored.
+
 
 
 
