@@ -217,6 +217,7 @@ function showDialog(dialogField, n, ob) {
 	let $dlg = $('#n-unanswered-dialog');
 	if ($dlg.length > 0) $dlg.remove();
 
+	toggleHighlight(dialogField, missing, true);
 	$('<div id="n-unanswered-dialog"></div>').dialog({
 		modal: true,
 		title: title,
@@ -229,7 +230,6 @@ function showDialog(dialogField, n, ob) {
 				html: cancelBtnLabel,
 				click: function() {
 					$(this).dialog('close');
-					toggleHighlight(dialogField, missing, true);
 					// Scroll to the first highlighted field
 					$('tr.n-unanswered-highlight').first().get(0)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 					// Need to re-enable the survey submit button
