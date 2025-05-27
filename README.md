@@ -29,6 +29,7 @@ The functionality is highly customizable and integrates seamlessly into existing
 - **Audit-readiness**  
   Ensure that critical fields are not unintentionally skipped, improving compliance with data quality protocols.
 
+This external module fully supports MLM integration.
 
 ## Requirements
 
