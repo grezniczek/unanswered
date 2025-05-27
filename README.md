@@ -135,21 +135,19 @@ Please see [CHANGLOG.md](CHANGELOG.md) for a full version history.
 
 If you use this external module for a project that generates a research output, please cite this software in addition to [citing REDCap](https://projectredcap.org/resources/citations/). You can do so using the APA referencing style as below:
 
-> Rezniczek, G. A. (2025). Unanswered (REDCap External Module) [Computer software]. https://doi.org/10.5281/zenodo.xxx
-
+> Rezniczek, G. A. (2025). Unanswered (REDCap External Module) [Computer software]. https://doi.org/10.5281/zenodo.15530714
 Or by adding this reference to your BibTeX database:
 
 ```bibtex
-@software{Rezniczek_Unanswerd_REDCap_EM_2025,
-  author = {Rezniczek, Günther A.},
-  title = {{Unanswered (REDCap External Module)}},
-  version = {1.0.0},
-  year = {2025}
-  month = {5},
-  doi = {10.5281/zenodo.15530714},
-  url = {https://github.com/grezniczek/unanswered},
+@software{Rezniczek_Unanswered_REDCap_EM_2025,
+author = {Rezniczek, Günther A.},
+month = may,
+title = {{Unanswered (REDCap External Module)}},
+url = {https://github.com/grezniczek/unanswered},
+year = {2025}
 }
 ```
+Rezniczek, G. A. (2025). Unanswered (REDCap External Module) (Version 1.0.0) [Computer software]. https://github.com/grezniczek/unanswered
 
 These instructions are also available in [GitHub](https://github.com/grezniczek/unanswered) under 'Cite This Repository'.
 
