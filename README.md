@@ -2,7 +2,33 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxx.svg)](https://doi.org/10.5281/zenodo.xxx)
 
-A REDCap external module that counts (and optionally highlights) the unanswered fields on a data entry or survey page.
+A REDCap external module that supports data completeness by identifying and responding to unanswered fields in real time.
+
+## Synopsis
+
+**Unanswered** is a REDCap external module that enhances data quality oversight by dynamically tracking unanswered fields on forms and survey pages. It provides project designers with flexible tools to count missing data, highlight incomplete entries, and prompt users before saving incomplete records. The module supports both generic and targeted counting of required fields, with options to fine-tune behavior based on context (e.g., exclude fields, include conditionally embedded fields, or highlight progressively).
+
+Dialog popups can be configured to inform users of missing fields before submission, and the visual highlighting features improve usability and data completeness without requiring custom coding. The module is compatible with both data entry and survey modes and supports dynamic page behaviors across multi-section instruments.
+
+The functionality is highly customizable and integrates seamlessly into existing REDCap workflows, promoting completeness and consistency throughout the data collection process.
+
+### Use cases
+
+- **Prevent incomplete submissions**  
+  Display a dialog warning when users attempt to submit a form or survey with unanswered required questions.
+
+- **Visual feedback for data entry personnel**  
+  Highlight missing responses during or after form completion to guide data collectors in real time.
+
+- **Conditional completeness logic**  
+  Count only a specific set of fields or sections when calculating unanswered items, allowing form-specific behavior.
+
+- **Flexible survey flow**  
+  Support one-section-per-page surveys by including entire sections based on a single field reference.
+
+- **Audit-readiness**  
+  Ensure that critical fields are not unintentionally skipped, improving compliance with data quality protocols.
+
 
 ## Requirements
 
@@ -31,7 +57,7 @@ There are no system-level configuration options specific for this module.
 
 ### `@N-UNANSWERED`
 
-This is the primary action tag. All others are used in conjunction with it (i.e., on the same field) to fine-tune the module’s behavior or enable additional features.
+This is the primary action tag. All others are used in conjunction with it, on the same field or on other fields, to fine-tune the module’s behavior or enable additional features.
 
 `@N-UNANSWERED` counts the number of unanswered fields on a data entry form or survey page and writes the result into the field where it is applied. This field must be of type '**Text Box**' with validation set to '**Integer**'.
 
@@ -41,38 +67,68 @@ Alternatively, the asterisk `*` may be used as the parameter (e.g., `@N-UNANSWER
 
 ### `@N-UNANSWERED-EXCLUDED`
 
-Attach this action to any field you do not want to be counted by the `@N-UNANSWERED` action tag. If there are multiple fields on a form or survey page and you want to exclude a field from a specific instance of `@N-UNANSWERED`, then supply the corresponding field name as a string parameter to the action tag (e.g., `@N-UNANSWERED-EXCLUDED='counter'`, where _counter_ is the field with the `@N-UNANSWERED` action tag). Alternatively, this action tag may be added to the same field as the `@N-UNANSWERED` action tag, in which case the list of fields to be excluded should be supplied as a comma-separated list in the string parameter of this action tag.
+Attach this action tag to any field that should be excluded from the `@N-UNANSWERED` count. 
+
+To exclude a field from a specific `@N-UNANSWERED` instance, supply the field name of that counter as a string parameter, e.g., `@N-UNANSWERED-EXCLUDED='counter'`, where _counter_ is the field containing the `@N-UNANSWERED` tag.
+
+Alternatively, add this tag to the same field as the `@N-UNANSWERED` tag and provide a comma-separated list of field names in the string parameter to exclude multiple fields.
 
 ### `@N-UNANSWERED-ALWAYS-INCLUDED`
 
-Attach this action to any field that is embedded in the label of a radio or checkbox field to included in the count even when the radio or checkbox it is embedded in is not selected/checked. Such fields are otherwise only counted by the `@N-UNANSWERED` action tag when the embedding radio/checkbox is selected/checked. To associated this action tag with a specific instance of `@N-UNANSWERED`, supply the corresponding field name as a string parameter to the action tag. Alternatively, this action tag may be added to the same field as the `@N-UNANSWERED` action tag, in which case the list of fields to be excluded should be supplied as a comma-separated list in the string parameter of this action tag.
+Use this tag for any field that is embedded in the label of a radio button or checkbox and should always be counted by `@N-UNANSWERED`, even when the radio/checkbox is not selected.
+
+Normally, such embedded fields are only counted when the associated radio or checkbox is checked.
+
+To link this tag to a specific `@N-UNANSWERED` counter, supply that counter’s field name as a parameter. Alternatively, if this tag is added to the same field as `@N-UNANSWERED`, provide a comma-separated list of field names to always include.
 
 ### `@N-UNANSWERED-DIALOG`
 
-Attach this action together with the `@N-UNANSWERED` action tag only, i.e., to the same field. When set, the label of the current field will be shown as a dialog when the user or survey respondent tries to save the page with unanswered questions (i.e., the count being > 0). The following optional parameters can be added: (1) The name of another field (e.g., a descriptive field) can be given, in which case that field's label will serve as the dialog's content. (2) A threshold value for the unanswered count that must be reached for the dialog to show. This must be an integer value. The default threshold is 1. (3) The flag `NSS` (Not for Save & Stay, all caps), that, when set, will not show the a data entry user uses the _Save & Stay_ button. The parameters must be separated by commas and can be in any order. Examples: `@N-UNANSWERED-DIALOG='3'`, `@N-UNANSWERED-DIALOG='desc_dialog,3,NSS'`.<br><br>The dialog shown can be customized to some extent. By default, the title will be 'NOTICE' and the buttons will be labeled 'Cancel' and what the original save/continue button was labeled. To customize the dialog title and the button labels, these elements can be added to the label, wrapped in double curly braces, i.e., `{{type:label}}`, where _type_ is `title`, `cancel`, or `continue`, and _label_ is the desired content. Care must be taken to not have any formatting obscure the start (`{{type:`) and end (`}}`) of these elements as else they may not be picked up correctly. It is best to not use the Rich Text Editor or to turn it off to inspect the underlying HTML. Some limited formatting of the contents itself is supported.  
-Note: The field used as the dialog's source will be hidden and it must not be embedded elsewhere. When several dialogs are configured simulataneously, the first one representing the most unanswered fields will be shown.
+Use this tag only in combination with `@N-UNANSWERED` (on the same field). When active, it displays a dialog if the user or survey respondent tries to save a page that still has unanswered fields (i.e., when the count is greater than 0).
+
+Optional parameters include:
+1. A field name (e.g., a descriptive field) whose label should be shown as the dialog’s content.
+2. A threshold value (integer) that must be met or exceeded for the dialog to appear. Default is 1.
+3. The flag `NSS` (Not for Save & Stay). When used, the dialog will not appear if the user clicks _Save & Stay_.
+
+Parameters should be comma-separated and can be in any order. Examples:  
+`@N-UNANSWERED-DIALOG='3'`,  
+`@N-UNANSWERED-DIALOG='desc_dialog,3,NSS'`
+
+The dialog can be customized using special elements in the label:
+- Wrap content in double curly braces, e.g., `{{title:Missing Data}}`.
+- Supported types: `title`, `cancel`, and `continue`:
+  - `title` content will be used as the dialog's title (default: _"NOTICE"_).
+  - `cancel` content will be used as the cancel button's label (default: _"Cancel"_); when clicked, submission of the form or survey page will be cancelled.
+  - `continue` content will be used as the continue (i.e., submit) button. The default label reflects the label of the submit button (e.g., _"Save & Exit Form"_ or _"Submit"_).
+- Avoid formatting that interferes with the tag structure (starting with `{{label:`and ending with `}}`), especially when using the Rich Text Editor. Basic formatting within the content itself is supported.
+- The remaining text will be shown in the dialog's body. Note that piping is fully supported, as in every label.
+
+**Note:**  
+The field providing the dialog content will be hidden and must not be embedded in other elements. If multiple dialogs are active, only the one linked to the highest number of unanswered fields will be shown.
 
 ### `@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG`
 
-Attach this action together with the `@N-UNANSWERED` action tag only, i.e., to the same field. When set, unanswered fields will be highlighted, but only after a dialog has been opened in response to the user or survey respondent saving the current page (but not when going back on a survey). The default highlight color is red, but can be specified as an optional parameter to this actiontag (e.g., `@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG='orange'`). The color value can be any valid CSS color value, e.g., `red`, `#ff0000`, or `rgb(255, 0, 0)`.
+Use this tag only together with `@N-UNANSWERED` (on the same field). When enabled, unanswered fields will be highlighted **after** a dialog has been triggered upon saving the page (not when navigating back on a survey).
+
+The default highlight color is red. To use a different color, provide it as a parameter, e.g.,  
+`@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG='orange'`
+
+Any valid CSS color value is supported, such as `red`, `#ff0000`, or `rgb(255, 0, 0)`.
 
 ### `@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE`
 
-Attach this action together with the `@N-UNANSWERED` action tag only, i.e., to the same field. When set, unanswered fields will be progressively highlighted in red or the color specified as an optional parameter to this actiontag (e.g., `@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE='orange'`). The color value can be any valid CSS color value, e.g., `red`, `#ff0000`, or `rgb(255, 0, 0)`. Progressive highlighting means that any unanswered fields _above_ the last edited field will be hightlighted.
+Use this tag only together with `@N-UNANSWERED` (on the same field). When active, unanswered fields will be progressively highlighted in red, or in a specified color.
 
+To set a custom color, pass it as a parameter, e.g.,  
+`@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE='orange'`
 
+Any valid CSS color value is allowed, such as `red`, `#ff0000`, or `rgb(255, 0, 0)`.
 
+With progressive highlighting, only unanswered fields **above** the most recently edited field will be highlighted.
 
-When enabled, any dialogs that have been configured (via action tags) will not be triggered when the _Save & Stay_ button is pressed.
+## Changlog
 
-
-
-
-## Changelog
-
-Version | Description
-------- | ----------------
-1.0.0   | Initial release.
+Please see [CHANGLOG.md](CHANGELOG.md) for a full version history.
 
 ## How to cite this work
 
@@ -105,3 +161,9 @@ You can use the link or the QR code below to make a donation via PayPal.
 ![PayPal QR Code](/images/qr-paypal.png)
 
 _Please note that donations are purely voluntary and not tax-deductible._
+
+
+---
+
+**Disclaimer**  
+This module description and documentation were developed with the assistance of AI (ChatGPT by OpenAI) to support clarity, consistency, and ease of use for REDCap project designers. Final content has been reviewed and adapted to reflect the specific functionality and standards of the *Unanswered EM* module.
