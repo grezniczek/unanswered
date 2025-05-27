@@ -108,6 +108,12 @@ function count(initiator = '') {
 					}
 				}
 			}
+			// Skip any fields that have a missing data code set
+			const missingCode = '' + ($('#' + field + '_MDLabel:visible').attr('code') ?? '');
+			if (missingCode != '') {
+				log('Skipping field with missing data code:', field);
+				continue;
+			}
 			// Check value
 			if (typeof document['form'][field] != 'undefined') {
 				const val = (document['form'][field].value == '') ? 1 : 0;
