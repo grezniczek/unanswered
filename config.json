@@ -29,7 +29,7 @@
 			"description": "Displays a customizable dialog when the user attempts to save a form or survey page with unanswered fields, based on a threshold count. This tag must be used together with <code>@N-UNANSWERED</code> on the same field. Optional parameters allow you to specify a custom content field for the dialog, set a minimum unanswered count threshold, and suppress the dialog for <i>Save & Stay</i> via the <code>NSS</code> flag. <i>For details, please refer to the module's documentation.</i>"
 		},
 		{
-			"tag": "@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG",
+			"tag": "@N-UNANSWERED-HIGHLIGHT-WITH-DIALOG",
 			"description": "Highlights unanswered fields on the form, but only after a dialog triggered by <code>@N-UNANSWERED-DIALOG</code> has appeared. Use this tag on the same field as the counter. You can optionally define the highlight color using any valid CSS color value. <i>For details, please refer to the module's documentation.</i>"
 		},
 		{

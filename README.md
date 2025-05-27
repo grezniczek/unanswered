@@ -107,12 +107,12 @@ The dialog can be customized using special elements in the label:
 **Note:**  
 The field providing the dialog content will be hidden and must not be embedded in other elements. If multiple dialogs are active, only the one linked to the highest number of unanswered fields will be shown.
 
-### @N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG
+### @N-UNANSWERED-HIGHLIGHT-WITH-DIALOG
 
-Use this tag only together with `@N-UNANSWERED` (on the same field). When enabled, unanswered fields will be highlighted **after** a dialog has been triggered upon saving the page (not when navigating back on a survey).
+Use this tag only together with `@N-UNANSWERED` (on the same field). When enabled, unanswered fields will be highlighted when a dialog has been triggered upon saving the page (not when navigating back on a survey).
 
 The default highlight color is red. To use a different color, provide it as a parameter, e.g.,  
-`@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG='orange'`
+`@N-UNANSWERED-HIGHLIGHT-WITH-DIALOG='orange'`
 
 Any valid CSS color value is supported, such as `red`, `#ff0000`, or `rgb(255, 0, 0)`.
 

@@ -19,7 +19,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 	const AT_N_UNANSWERED_EXCLUDED = "@N-UNANSWERED-EXCLUDED";
 	const AT_N_UNANSWERED_ALWAYS_INCLUDED = "@N-UNANSWERED-ALWAYS-INCLUDED";
 	const AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE = "@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE";
-	const AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG = "@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG";
+	const AT_N_UNANSWERED_HIGHLIGHT_WITH_DIALOG = "@N-UNANSWERED-HIGHLIGHT-WITH-DIALOG";
 	const AT_N_UNANSWERED_DIALOG = "@N-UNANSWERED-DIALOG";
 
 	#region Hooks
@@ -97,7 +97,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 					"excluded" => [],
 					"alwaysIncluded" => [],
 					"highlightProgressive" => "",
-					"highlightAfterDialog" => "",
+					"highlightWithDialog" => "",
 					"dialog" => null,
 				];
 			}
@@ -111,7 +111,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 				self::AT_N_UNANSWERED_EXCLUDED,
 				self::AT_N_UNANSWERED_ALWAYS_INCLUDED,
 				self::AT_N_UNANSWERED_HIGHLIGHT_PROGRESSIVE,
-				self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG,
+				self::AT_N_UNANSWERED_HIGHLIGHT_WITH_DIALOG,
 				self::AT_N_UNANSWERED_DIALOG
 			], array_keys($page_fields), null, $context);
 		// Check for N-UNANSWERED-EXCLUDED action tag
@@ -148,12 +148,12 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 			}
 		}
 		// Check for N-UNANSWERED-HIGHLIGHT-PROGRESSIVE action tag (must be applied with the N-UNANSWERED action tag)
-		$highlight_after_dialog = $action_tags[self::AT_N_UNANSWERED_HIGHLIGHT_AFTER_DIALOG] ?? [];
-		foreach ($highlight_after_dialog as $counter_field => $params) {
+		$highlight_with_dialog = $action_tags[self::AT_N_UNANSWERED_HIGHLIGHT_WITH_DIALOG] ?? [];
+		foreach ($highlight_with_dialog as $counter_field => $params) {
 			if (isset($counters[$counter_field])) {
 				$color = strip_tags(trim($params["params"], "'\""));
 				if ($color == "") $color = "red";
-				$counters[$counter_field]["highlightAfterDialog"] = $color;
+				$counters[$counter_field]["highlightWithDialog"] = $color;
 			}
 		}
 		// Check for N-UNANSWERED-DIALOG action tag
