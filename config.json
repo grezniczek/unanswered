@@ -18,7 +18,7 @@
 		},
 		{
 			"tag": "@N-UNANSWERED-EXCLUDED",
-			"description": "Attach this action to any field you do not want to be counted by the <code>@N-UNANSWERED</code> action tag. If there are multiple fields on a form or survey page and you want to exclude a field from a specific instance of <code>@N-UNANSWERED</code>, then supply the corresponding field name as a string parameter to the action tag (e.g., <code>@N-UNANSWERED-EXCLUDED='counter'</code>, where <i>counter</i> is the field with the <code>@N-UNANSWERED</code> action tag. Alternatively, this action tag may be added to the same field as the <code>@N-UNANSWERED</code> action tag, in which case the list of fields to be excluded should be supplied as a comma-separated list in the string parameter of this action tag."
+			"description": "Attach this action to any field you do not want to be counted by the <code>@N-UNANSWERED</code> action tag. If there are multiple fields on a form or survey page and you want to exclude a field from a specific instance of <code>@N-UNANSWERED</code>, then supply the corresponding field name as a string parameter to the action tag (e.g., <code>@N-UNANSWERED-EXCLUDED='counter'</code>, where <i>counter</i> is the field with the <code>@N-UNANSWERED</code> action tag). Alternatively, this action tag may be added to the same field as the <code>@N-UNANSWERED</code> action tag, in which case the list of fields to be excluded should be supplied as a comma-separated list in the string parameter of this action tag."
 		},
 		{
 			"tag": "@N-UNANSWERED-ALWAYS-INCLUDED",
