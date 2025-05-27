@@ -11,19 +11,37 @@ A REDCap external module that counts (and optionally highlights) the unanswered 
 ## Installation
 
 - Clone this repo into `<redcap-root>/modules/unanswered_v<version-number>`, or
-- Obtain this module from the Consortium [REDCap Repo](https://redcap.vumc.org/consortium/modules/index.php) via the Control Center.
-- Go to _Control Center > Technical / Developer Tools > External Modules_ and enable _Unanswered_.
+- Obtain this module from the Consortium [REDCap Repo](https://redcap.vumc.org/consortium/modules/index.php) via the Control Center (_External Modules_ > _Manage_ > _View modules available in the REDCap Repo_), and then
+- Go to _Control Center > External Modules_ > _Manage_ > _Enable a module_ and enable _Unanswered_.
+- Enable the module in any project where its functionality is required (_External Modules_ > _Manage_ > _Enable a module_).
 
 ## Configuration
 
 ### System-level (Control Center)
-There are no configuration options specific for this module.
+
+There are no system-level configuration options specific for this module.
 
 ### Project-level
 
-- **Suppress dialogs for 'Save & Stay'**: When enabled, any dialogs that have been configured (via action tags) will not be triggered when the _Save & Stay_ button is pressed.
+- **Output debug information to the browser console**: When enabled, detailed information about the module's processing on a data entry or survey page is output to the browser's console.  
+  This option should be enabled only temporarily in order to help troubleshootung any issues.
+- All further setup and configuration is done using **action tags** (see below).
 
 ## Action Tags
+
+### `@N-UNANSWERED`
+
+This is the main action tag. All others are used together with this one (i.e., on the same field) to fine-tune the behavior of the module or to activate additional features.
+
+`@N-UNANSWERED` counts the number of unanswered fields on a data entry form or survey page, and writes the result into the field it is attached to. This requires that the field is of type '**Text Box**' with the validation set to '**Integer**'. 
+
+Optionally, a set of fields (provided as a comma-separated list of field names) can be specified as a parameter to limit counting to this set. For example, `@N-UNANSWERED='field1,field2,field3'` will only consider the fields _field1_, _field2_, and _field3_. Additionally, when a field in the parameter list is prepended with `__` (double underscore), all fields of the section this field is in will be added. This is useful to create a counting behavior that is the same for an instrument, both in data entry mode and in survey mode when showing one page per section. Instead of a set of fields, `*` (asterisk) can be specified as the paramater for this action tag (i.e., `@N-UNANSWERED='*'`), in which case all fields marked as **required** will be counted. When counting required fields, modifiers such as `@N-UNANSWERED-EXCLUDED` will be ignored and not have any effect.
+
+
+
+
+When enabled, any dialogs that have been configured (via action tags) will not be triggered when the _Save & Stay_ button is pressed.
+
 
 
 
