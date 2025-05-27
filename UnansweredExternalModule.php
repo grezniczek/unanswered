@@ -210,6 +210,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 					$field_name != "{$instrument}_complete"; 
 			})),
 			"isSurvey" => $context["is_survey"],
+			"defaultTitle" => RCView::tt("global_03"),
 		);
 		// Output JS and init code
 		require_once "classes/InjectionHelper.php";

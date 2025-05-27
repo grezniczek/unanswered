@@ -61,6 +61,11 @@ function initialize(config_data, jsmo = null) {
 		}
 	}
 
+	// Translation support for default dialog title ()
+	const $defaultTitle = $('<div></div>').html(config.defaultTitle).css('display', 'none');
+	$defaultTitle.appendTo('#questiontable');
+	config.$defaultTitle = $defaultTitle;
+
 	// Initial count
 	count();
 }
@@ -186,7 +191,7 @@ function showDialog(dialogField, n, ob) {
 	const $btn = typeof ob == 'string' ? $('#' + ob) : $(ob);
 	let continueBtnLabel = $btn.html();
 	let content = srcContent;
-	let title = window['lang'].global_03; // NOTICE
+	let title = config.$defaultTitle.text(); // NOTICE
 	let match;
 	while ((match = regex.exec(srcContent)) !== null) {
 		// This is necessary to avoid infinite loops with zero-width matches
