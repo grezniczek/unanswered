@@ -7,9 +7,7 @@ authors:
     family-names: Rezniczek
     orcid: 'https://orcid.org/0000-0002-0852-6002'
     affiliation: UK Ruhr-Universität Bochum | Marien Hospital Herne
-identifiers:
-  - type: doi
-    value: 10.5281/zenodo.15530714
+doi: 10.5281/zenodo.15530714
 repository-code: 'https://github.com/grezniczek/unanswered'
 version: 1.0.0
 date-released: '2025-05-27'
