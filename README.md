@@ -1,6 +1,6 @@
 # Unanswered (REDCap External Module)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxx.svg)](https://doi.org/10.5281/zenodo.xxx)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15530714.svg)](https://doi.org/10.5281/zenodo.15530714)
 
 A REDCap external module that supports data completeness by identifying and responding to unanswered fields in real time.
 
@@ -39,7 +39,7 @@ This external module fully supports MLM integration.
 
 - Clone this repo into `<redcap-root>/modules/unanswered_v<version-number>`, or
 - Obtain this module from the Consortium [REDCap Repo](https://redcap.vumc.org/consortium/modules/index.php) via the Control Center (_External Modules_ > _Manage_ > _View modules available in the REDCap Repo_), and then
-- Go to _Control Center > External Modules_ > _Manage_ > _Enable a module_ and enable _Unanswered_.
+- Go to _Control Center > External Modules_ > _Manage_ > _Enable a module_ and enable **Unanswered**.
 - Enable the module in any project where its functionality is required (_External Modules_ > _Manage_ > _Enable a module_).
 
 ## Configuration
@@ -56,7 +56,7 @@ There are no system-level configuration options specific for this module.
 
 ## Action Tags
 
-### `@N-UNANSWERED`
+### @N-UNANSWERED
 
 This is the primary action tag. All others are used in conjunction with it, on the same field or on other fields, to fine-tune the module’s behavior or enable additional features.
 
@@ -66,7 +66,7 @@ Optionally, a comma-separated list of field names can be provided as a parameter
 
 Alternatively, the asterisk `*` may be used as the parameter (e.g., `@N-UNANSWERED='*'`) to count all fields marked as **required**. When using this option, modifiers such as `@N-UNANSWERED-EXCLUDED` will be ignored.
 
-### `@N-UNANSWERED-EXCLUDED`
+### @N-UNANSWERED-EXCLUDED
 
 Attach this action tag to any field that should be excluded from the `@N-UNANSWERED` count. 
 
@@ -74,7 +74,7 @@ To exclude a field from a specific `@N-UNANSWERED` instance, supply the field na
 
 Alternatively, add this tag to the same field as the `@N-UNANSWERED` tag and provide a comma-separated list of field names in the string parameter to exclude multiple fields.
 
-### `@N-UNANSWERED-ALWAYS-INCLUDED`
+### @N-UNANSWERED-ALWAYS-INCLUDED
 
 Use this tag for any field that is embedded in the label of a radio button or checkbox and should always be counted by `@N-UNANSWERED`, even when the radio/checkbox is not selected.
 
@@ -82,7 +82,7 @@ Normally, such embedded fields are only counted when the associated radio or che
 
 To link this tag to a specific `@N-UNANSWERED` counter, supply that counter’s field name as a parameter. Alternatively, if this tag is added to the same field as `@N-UNANSWERED`, provide a comma-separated list of field names to always include.
 
-### `@N-UNANSWERED-DIALOG`
+### @N-UNANSWERED-DIALOG
 
 Use this tag only in combination with `@N-UNANSWERED` (on the same field). When active, it displays a dialog if the user or survey respondent tries to save a page that still has unanswered fields (i.e., when the count is greater than 0).
 
@@ -107,7 +107,7 @@ The dialog can be customized using special elements in the label:
 **Note:**  
 The field providing the dialog content will be hidden and must not be embedded in other elements. If multiple dialogs are active, only the one linked to the highest number of unanswered fields will be shown.
 
-### `@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG`
+### @N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG
 
 Use this tag only together with `@N-UNANSWERED` (on the same field). When enabled, unanswered fields will be highlighted **after** a dialog has been triggered upon saving the page (not when navigating back on a survey).
 
@@ -116,7 +116,7 @@ The default highlight color is red. To use a different color, provide it as a pa
 
 Any valid CSS color value is supported, such as `red`, `#ff0000`, or `rgb(255, 0, 0)`.
 
-### `@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE`
+### @N-UNANSWERED-HIGHLIGHT-PROGRESSIVE
 
 Use this tag only together with `@N-UNANSWERED` (on the same field). When active, unanswered fields will be progressively highlighted in red, or in a specified color.
 
@@ -146,7 +146,7 @@ Or by adding this reference to your BibTeX database:
   version = {1.0.0},
   year = {2025}
   month = {5},
-  doi = {10.5281/zenodo.xxx},
+  doi = {10.5281/zenodo.15530714},
   url = {https://github.com/grezniczek/unanswered},
 }
 ```
@@ -167,4 +167,4 @@ _Please note that donations are purely voluntary and not tax-deductible._
 ---
 
 **Disclaimer**  
-This module description and documentation were developed with the assistance of AI (ChatGPT by OpenAI) to support clarity, consistency, and ease of use for REDCap project designers. Final content has been reviewed and adapted to reflect the specific functionality and standards of the *Unanswered EM* module.
+This module description and documentation were developed with the assistance of AI (ChatGPT by OpenAI) to support clarity, consistency, and ease of use for REDCap project designers. Final content has been reviewed and adapted to reflect the specific functionality and standards of the *Unanswered* external module.

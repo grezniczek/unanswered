@@ -1,7 +1,7 @@
 {
 	"name": "Unanswered",
 	"namespace": "DE\\RUB\\UnansweredExternalModule",
-	"description": "REDCap external module that counts the unanswered fields on a data entry or survey page.",
+	"description": "A REDCap external module that supports data completeness by identifying and responding to unanswered fields in real time.",
 	"documentation": "README.md",
 	"authors": [
 		{
@@ -14,30 +14,28 @@
 	"action-tags": [
 		{
 			"tag": "@N-UNANSWERED",
-			"description": "Counts the unanswered fields on a data entry form or survey page. This action tag must be attached to a field of type 'Text Box' with validation set to 'Integer' only. The behavior of fields with regard to this action tag can be modified with the <code>@N-UNANSWERED-EXCLUDED</code> and <code>@N-UNANSWERED-ALWAYS-INCLUDED</code> action tags. Optionally, a set of fields (separated by commas) can be specified as a parameter to limit the count to this set. For example, <code>@N-UNANSWERED='field1,field2,field3'</code> will only consider the fields <code>field1</code>, <code>field2</code>, and <code>field3</code>. Additionally, when a field in the parameter list is prepended with <code>__</code> (double underscore), all fields of the section this field is in will be added. This is useful to create a counting behavior that is the same for an instrument, both in data entry mode and in survey mode when showing one page per section. Instead of a set of fields, <code>*</code> (asterisk) can be specified as the paramater for this action tag, in which case all fields marked as <b>required</b> will be counted. When counting required fields, no further modifications, such as <code>@N-UNANSWERED-EXCLUDED</code> will have any effect."
+			"description": "Counts how many fields on a form or survey page are currently unanswered and writes the result into the field it is attached to. The field must be a <i>Text Box</i> with <i>Integer</i> validation. By default, all fields are considered unless a comma-separated list of field names or <code>*</code> (to include all required fields) is provided as a parameter. <i>For details, please refer to the module's documentation.</i>"
 		},
 		{
 			"tag": "@N-UNANSWERED-EXCLUDED",
-			"description": "Attach this action to any field you do not want to be counted by the <code>@N-UNANSWERED</code> action tag. If there are multiple fields on a form or survey page and you want to exclude a field from a specific instance of <code>@N-UNANSWERED</code>, then supply the corresponding field name as a string parameter to the action tag (e.g., <code>@N-UNANSWERED-EXCLUDED='counter'</code>, where <i>counter</i> is the field with the <code>@N-UNANSWERED</code> action tag). Alternatively, this action tag may be added to the same field as the <code>@N-UNANSWERED</code> action tag, in which case the list of fields to be excluded should be supplied as a comma-separated list in the string parameter of this action tag."
+			"description": "Prevents the field it is attached to from being included in a <code>@N-UNANSWERED</code> count. Optionally, you can specify one or more target counter fields as a parameter to exclude this field only from those specific counts. If added to the same field as the counter, the parameter should be a comma-separated list of field names to exclude. <i>For details, please refer to the module's documentation.</i>"
 		},
 		{
 			"tag": "@N-UNANSWERED-ALWAYS-INCLUDED",
-			"description": "Attach this action to any field that is embedded in the label of a radio or checkbox field to included in the count even when the radio or checkbox it is embedded in is not selected/checked. Such fields are otherwise only counted by the <code>@N-UNANSWERED</code> action tag when the embedding radio/checkbox is selected/checked. To associated this action tag with a specific instance of <code>@N-UNANSWERED</code>, supply the corresponding field name as a string parameter to the action tag. Alternatively, this action tag may be added to the same field as the <code>@N-UNANSWERED</code> action tag, in which case the list of fields to be excluded should be supplied as a comma-separated list in the string parameter of this action tag."
-		},
-		{
-			"tag": "@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE",
-			"description": "Attach this action together with the <code>@N-UNANSWERED</code> action tag only, i.e., to the same field. When set, unanswered fields will be progressively highlighted in red or the color specified as an optional parameter to this actiontag (e.g., <code>@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE='orange'</code>). The color value can be any valid CSS color value, e.g., <code>red</code>, <code>#ff0000</code>, or <code>rgb(255, 0, 0)</code>. Progressive highlighting means that any unanswered fields <i>above</i> the last edited field will be hightlighted."
-		},
-		{
-			"tag": "@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG",
-			"description": "Attach this action together with the <code>@N-UNANSWERED</code> action tag only, i.e., to the same field. When set, unanswered fields will be highlighted, but only after a dialog has been opened in response to the user or survey respondent saving the current page (but not when going back on a survey). The default highlight color is red, but can be specified as an optional parameter to this actiontag (e.g., <code>@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG='orange'</code>). The color value can be any valid CSS color value, e.g., <code>red</code>, <code>#ff0000</code>, or <code>rgb(255, 0, 0)</code>."
+			"description": "Ensures that a field embedded in a radio or checkbox label is always included in a <code>@N-UNANSWERED</code> count, even if its parent radio/checkbox is not selected — which is normally required. You can supply the target counter field as a parameter or use it directly on the same field as the counter. <i>For details, please refer to the module's documentation.</i>"
 		},
 		{
 			"tag": "@N-UNANSWERED-DIALOG",
-			"description": "Attach this action together with the <code>@N-UNANSWERED</code> action tag only, i.e., to the same field. When set, the label of the current field will be shown as a dialog when the user or survey respondent tries to save the page with unanswered questions (i.e., the count being > 0). The following optional parameters can be added: (1) The name of another field (e.g., a descriptive field) can be given, in which case that field's label will serve as the dialog's content. (2) A threshold value for the unanswered count that must be reached for the dialog to show. This must be an integer value. The default threshold is 1. (3) The flag <code>NSS</code> (Not for Save & Stay, all caps), that, when set, will not show the a data entry user uses the _Save & Stay_ button. The parameters must be separated by commas and can be in any order. Examples: <code>@N-UNANSWERED-DIALOG='3'</code>, <code>@N-UNANSWERED-DIALOG='desc_dialog,3,NSS'</code>.<br><br>The dialog shown can be customized to some extent. By default, the title will be 'NOTICE' and the buttons will be labeled 'Cancel' and what the original save/continue button was labeled. To customize the dialog title and the button labels, these elements can be added to the label, wrapped in double curly braces, i.e., <b>{{type:label}}</b>, where <i>type</i> is <code>title</code>, <code>cancel</code>, or <code>continue</code>, and <i>label</i> is the desired content. Care must be taken to not have any formatting obscure the start (<b>{{type:</b>) and end (<b>}}</b>) of these elements as else they may not be picked up correctly. It is best to not use the Rich Text Editor or to turn it off to inspect the underlying HTML. Some limited formatting of the contents itself is supported.<br>Note: The field used as the dialog's source will be hidden and it must not be embedded elsewhere. When several dialogs are configured simulataneously, the first one representing the most unanswered fields will be shown."
+			"description": "Displays a customizable dialog when the user attempts to save a form or survey page with unanswered fields, based on a threshold count. This tag must be used together with <code>@N-UNANSWERED</code> on the same field. Optional parameters allow you to specify a custom content field for the dialog, set a minimum unanswered count threshold, and suppress the dialog for <i>Save & Stay</i> via the <code>NSS</code> flag. <i>For details, please refer to the module's documentation.</i>"
+		},
+		{
+			"tag": "@N-UNANSWERED-HIGHLIGHT-AFTER-DIALOG",
+			"description": "Highlights unanswered fields on the form, but only after a dialog triggered by <code>@N-UNANSWERED-DIALOG</code> has appeared. Use this tag on the same field as the counter. You can optionally define the highlight color using any valid CSS color value. <i>For details, please refer to the module's documentation.</i>"
+		},
+		{
+			"tag": "@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE",
+			"description": "Highlights all unanswered fields above the most recently edited field, creating a progressive effect as users work through the form. This tag must be used on the same field as <code>@N-UNANSWERED</code>, and optionally accepts a CSS color value for customization. <i>For details, please refer to the module's documentation.</i>"
 		}
-	],
-	"system-settings": [
 	],
 	"project-settings": [
 		{
