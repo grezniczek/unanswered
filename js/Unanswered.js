@@ -122,11 +122,12 @@ function count(initiator = '') {
 				log('Checking field "' + field + '":', val == 0 ? 'Answered' : 'Unanswered');
 			}
 			else {
-				// Checkboxes - We only consider them unanswered if they are all unchecked but the field is marked as required
+				// Checkboxes - We only consider them unanswered if they are all unchecked and the field is marked as required or if the field is to be always included
 				const isRequired = $tr.attr('req') == '1';
+				const alwaysIncluded = counter.alwaysIncluded.includes(field);
 				// Check if it is embedded and potentiall hidden, in which case we skip it
 				const isHidden = $('.rc-field-embed[var="' + field + '"]').css('display') == 'none';
-				if (isRequired && !isHidden) {
+				if ((isRequired || alwaysIncluded) && !isHidden) {
 					let oneChecked = false;
 					$('input[name="__chkn__' + field + '"]').each(function() {
 						if ($(this).is(':checked')) oneChecked = true;

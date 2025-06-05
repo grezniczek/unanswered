@@ -76,11 +76,11 @@ Alternatively, add this tag to the same field as the `@N-UNANSWERED` tag and pro
 
 ### @N-UNANSWERED-ALWAYS-INCLUDED
 
-Use this tag for any field that is embedded in the label of a radio button or checkbox and should always be counted by `@N-UNANSWERED`, even when the radio/checkbox is not selected.
-
-Normally, such embedded fields are only counted when the associated radio or checkbox is checked.
+Use this tag for any field that is embedded in the label of a radio button or checkbox and should always be counted by `@N-UNANSWERED`, even when the radio/checkbox is not selected. Normally, such embedded fields are only counted when the associated radio or checkbox is checked.
 
 To link this tag to a specific `@N-UNANSWERED` counter, supply that counter’s field name as a parameter. Alternatively, if this tag is added to the same field as `@N-UNANSWERED`, provide a comma-separated list of field names to always include.
+
+This action tag can be used to mark a checkbox field to be considered unanswered when none of its options are checked. Otherwise, checkbox fields that are not marked as required are not considered unanswered when none of their options are selected.
 
 ### @N-UNANSWERED-DIALOG
 
