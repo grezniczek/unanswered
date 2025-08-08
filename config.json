@@ -22,7 +22,7 @@
 		},
 		{
 			"tag": "@N-UNANSWERED-ALWAYS-INCLUDED",
-			"description": "Ensures that a field embedded in a radio or checkbox label is always included in a <code>@N-UNANSWERED</code> count, even if its parent radio/checkbox is not selected — which is normally required. You can supply the target counter field as a parameter or use it directly on the same field as the counter. <i>For details, please refer to the module's documentation.</i>"
+			"description": "Can be applied to, e.g., checkbox fields (which are otherwise not counted), or to fields that are embedded in, e.g., a radio or checkbox label, in which case it will be included in the <code>@N-UNANSWERED</code> count, even if its parent radio/checkbox is not selected (the default behavior is that embedded fields are only counted when the parent radio/checkbox is checked). You can supply the target counter field as a parameter or use it directly on the same field as the counter. <i>For details, please refer to the module's documentation.</i>"
 		},
 		{
 			"tag": "@N-UNANSWERED-DIALOG",
