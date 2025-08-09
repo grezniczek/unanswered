@@ -84,6 +84,11 @@ function count(initiator = '') {
 	for (const field of config.fields) {
 		for (const counter_name in config.counters) {
 			const counter = config.counters[counter_name];
+			if (counter.fieldType == 'calc') {
+				// Calc takes care of counting
+				counts[counter_name] = $('input[name="' + counter_name + '"]').val();
+				continue;
+			}
 			if (counter.fields.length > 0 && !counter.fields.includes(field)) continue;
 			if (counter.excluded.includes(field)) continue;
 			const $tr = $('tr[sq_id="' + field + '"]');

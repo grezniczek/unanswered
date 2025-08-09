@@ -70,11 +70,19 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 		if (!count($tagged)) {
 			return; // We are done
 		}
-		// Validate action tag use (must be on a field of type 'Text Box' with validation set to 'Integer')
+		// Validate action tag use (must be on a field of type 'Text Box' with validation set to 'Integer', 
+		// or on a Calc field)
 		$counters = [];
 		foreach ($tagged as $field_name => $params) {
 			$field = $page_fields[$field_name];
-			if ($field["element_type"] == "text" && $field["element_validation_type"] == "int") {
+			$field_type = "";
+			if ($field["element_type"] == "calc") {
+				$field_type = "calc";
+			}
+			else if ($field["element_type"] == "text" && $field["element_validation_type"] == "int") {
+				$field_type = "int";
+			}
+			if (in_array($field_type, ["calc", "int"])) {
 				if (isset($params["params"])) {
 					$list = trim($params["params"], "'\"");
 					if ($list == "*") {
@@ -99,6 +107,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 					"highlightProgressive" => "",
 					"highlightWithDialog" => "",
 					"dialog" => null,
+					"fieldType" => $field_type,
 				];
 			}
 		}
