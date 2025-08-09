@@ -173,10 +173,14 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 				$dialog_field = $counter_field;
 				$dialog_threshold = 1;
 				$dialog_nss = false;
+				$dialog_npp = false;
 				foreach ($dialog_params as $dialog_param) {
 					$dialog_param = trim($dialog_param);
 					if ($dialog_param == "NSS") {
 						$dialog_nss = true;
+					}
+					elseif ($dialog_param == "NPP") {
+						$dialog_npp = true;
 					}
 					elseif (isinteger($dialog_param)) {
 						if (intval($dialog_param) > 0) {
@@ -193,7 +197,8 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 				$counters[$counter_field]["dialog"] = [
 					"field" => $dialog_field,
 					"threshold" => $dialog_threshold,
-					"nss" => $dialog_nss
+					"nss" => $dialog_nss,
+					"npp" => $dialog_npp,
 				];
 			}
 		}

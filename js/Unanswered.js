@@ -291,7 +291,7 @@ function hooked_doBranching(field) {
  * @returns {boolean} Returns false if a dialog is shown, otherwise calls the original data entry submit function.
  */
 function hooked_dataEntrySubmit(ob) {
-	const submitMode = (typeof ob == 'string' ? ob : $(ob).attr('id') ?? '');
+	const submitMode = (typeof ob == 'string' ? ob : $(ob).attr('id') ?? $(ob).attr('name') ?? '');
 	log('Submitting data entry ...', submitMode);
 	count();
 	let dialogField = '';
@@ -304,6 +304,8 @@ function hooked_dataEntrySubmit(ob) {
 			if (counts[counterName] < dialog.threshold) continue;
 			// Skip when set to not trigger on Save & Stay 
 			if (dialog.nss && submitMode == 'submit-btn-savecontinue') continue;
+			// Skip when going to a previous page (on surveys)
+			if (dialog.npp && submitMode == 'submit-btn-saveprevpage') continue;
 			dialogField = dialog.field;
 			// Set filter
 			n = counts[counterName];
