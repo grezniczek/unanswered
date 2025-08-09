@@ -90,10 +90,12 @@ Optional parameters include:
 1. A field name (e.g., a descriptive field) whose label should be shown as the dialog’s content.
 2. A threshold value (integer) that must be met or exceeded for the dialog to appear. Default is 1.
 3. The flag `NSS` (Not for Save & Stay). When used, the dialog will not appear if the user clicks _Save & Stay_.
+4. The flag `NPP` (Not for Previous Page). When used, the dialog will not appear when going to a previous survey page.
 
 Parameters should be comma-separated and can be in any order. Examples:  
 `@N-UNANSWERED-DIALOG='3'`,  
 `@N-UNANSWERED-DIALOG='desc_dialog,3,NSS'`
+`@N-UNANSWERED-DIALOG='desc_dialog,NPP`
 
 The dialog can be customized using special elements in the label:
 - Wrap content in double curly braces, e.g., `{{title:Missing Data}}`.
