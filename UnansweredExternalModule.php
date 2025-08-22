@@ -324,7 +324,7 @@ class UnansweredExternalModule extends \ExternalModules\AbstractExternalModule
 	private function get_project_metadata()
 	{
 		$this->require_proj();
-		return $this->is_draft_preview() ? $this->proj->metadata_temp : $this->proj->getMetadata();
+		return $this->proj->getMetadata();
 	}
 
 	private function get_field_metadata($field_name)
