@@ -142,13 +142,13 @@ If you use this external module for a project that generates a research output, 
 Or by adding this reference to your BibTeX database:
 
 ```bibtex
-@software{Rezniczek_Unanswered_REDCap_EM_2025,
+@software{Rezniczek_Unanswered_REDCap_EM_2026,
 author = {Rezniczek, Günther A.},
 doi = {10.5281/zenodo.15530714},
 title = {{Unanswered (REDCap External Module)}},
 url = {https://github.com/grezniczek/unanswered},
-version = {1.1.0},
-year = {2025}
+version = {1.1.1},
+year = {2026}
 }
 ```
 
