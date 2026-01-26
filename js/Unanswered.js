@@ -99,6 +99,20 @@ function count(initiator = '') {
 				($tr.css('display') == 'none' && !$tr.hasClass('row-field-embedded'))) {
 					continue;
 			}
+			// For embedded fields, additionally check if their new container row is hidden
+			if ($tr.hasClass('row-field-embedded')) {
+				const $embedContainer = $('.rc-field-embed[var="' + field + '"]').parents('tr[sq_id]').first();
+				if (
+					$embedContainer.length > 0 && (
+						$embedContainer.css('display') == 'none' || 
+						$embedContainer.hasClass('\@HIDDEN') || 
+						(config.isSurvey && $embedContainer.hasClass('\@HIDDEN-SURVEY')) ||
+						(!config.isSurvey && $embedContainer.hasClass('\@HIDDEN-FORM'))
+					)
+				) {
+					continue;
+				}
+			}
 			if (config.isSurvey && $tr.hasClass('\@HIDDEN-SURVEY')) continue;
 			if (!config.isSurvey && $tr.hasClass('\@HIDDEN-FORM')) continue;
 			// Skip any embedded fields that are embedded within a radio or checkbox choice, unless they are marked with @N-UNANSWERED-ALWAYS-INCLUDED
