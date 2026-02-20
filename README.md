@@ -129,6 +129,16 @@ Any valid CSS color value is allowed, such as `red`, `#ff0000`, or `rgb(255, 0, 
 
 With progressive highlighting, only unanswered fields **above** the most recently edited field will be highlighted.
 
+### @N-UNANSWERED-PROGRESS
+
+Use this tag on an a calc field to display a sticky progress bar at the top of the survey page. Use multiple calc fields to show multiple bars (e.g., to visualize in-page progress and overall progress). Bars are added in the order their calc fields occur on the survey page. Optional parameters are the height of the bar in units `px` (default), `em`, or `rem, and any valid color. The default color is a light, faded green.
+
+Examples:
+- `@N-UNANSWERED-PROGRESS` adds a bar with default height and color
+- `@N-UNANSWERED-PROGRESS="5,orange"` adds a 5px-high orange bar
+
+For further customization, override the `.n-unanswered-progress` and `.n-unanswered-bar` CSS classes.
+
 ## Changlog
 
 Please see [CHANGLOG.md](CHANGELOG.md) for a full version history.

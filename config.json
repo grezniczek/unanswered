@@ -35,6 +35,10 @@
 		{
 			"tag": "@N-UNANSWERED-HIGHLIGHT-PROGRESSIVE",
 			"description": "Highlights all unanswered fields above the most recently edited field, creating a progressive effect as users work through the form. This tag must be used on the same field as <code>@N-UNANSWERED</code>, and optionally accepts a CSS color value for customization. <i>For details, please refer to the module's documentation.</i>"
+		},
+		{
+			"tag": "@N-UNANSWERED-PROGRESS",
+			"description": "Shows a progress bar at the top of a survey page. This action tag must be attached to a calc field. The calc field must result in a value between 0 and 100. Optional parameters are height of the bar (in units of <code>px</code>, <code>em</code>, or <code>rem</code> and color (any valid CSS color value), separated by a comma. Example: <code>@N-UNANSWERED_PROGRESS=\"15px,blue\"</code>."
 		}
 	],
 	"project-settings": [

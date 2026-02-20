@@ -19,12 +19,21 @@ tr.n-unanswered-highlight [data-kind="field-value"] .rc-field-embed:not(.n-unans
 }
 
 .n-unanswered-highlight .enhancedchoice .ec {
-    border: 2px solid var(--n-unanswered-highlight-color);
+    outline: 2px solid var(--n-unanswered-highlight-color);
     border-radius: 10px;
-}
-.n-unanswered-highlight div.enhancedchoice label {
-    border: none;
 }
 .n-unanswered-dialog {
     display: none;
+}
+.n-unanswered-progress {
+    border-top: 1px solid rgb(204, 204, 204);
+    padding: 1px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: white;
+}
+.n-unanswered-bar {
+    height: 10px;
+    background-color: #b1d6b1;
 }
