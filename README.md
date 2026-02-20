@@ -157,7 +157,7 @@ author = {Rezniczek, Günther A.},
 doi = {10.5281/zenodo.15530714},
 title = {{Unanswered (REDCap External Module)}},
 url = {https://github.com/grezniczek/unanswered},
-version = {1.1.1},
+version = {1.2.0},
 year = {2026}
 }
 ```
