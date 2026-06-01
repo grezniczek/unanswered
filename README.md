@@ -170,7 +170,7 @@ If you find this software useful, you can [buy me a coffee or a beer](https://ww
 
 You can use the link or the QR code below to make a donation via PayPal.
 
-![PayPal QR Code](/images/qr-paypal.png)
+![PayPal QR Code](images/qr-paypal.png)
 
 _Please note that donations are purely voluntary and not tax-deductible._
 
